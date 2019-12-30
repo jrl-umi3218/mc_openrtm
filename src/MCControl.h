@@ -4,20 +4,20 @@
 
 // -*- C++ -*-
 /*!
- * @file  MCControl.h * @brief Core component for MC control * @date  $Date$ 
+ * @file  MCControl.h * @brief Core component for MC control * @date  $Date$
  *
- * $Id$ 
+ * $Id$
  */
 #ifndef MCCONTROL_H
 #define MCCONTROL_H
 
-#include <rtm/idl/BasicDataTypeSkel.h>
-#include <rtm/idl/ExtendedDataTypesSkel.h>
-#include <rtm/Manager.h>
-#include <rtm/DataFlowComponentBase.h>
 #include <rtm/CorbaPort.h>
+#include <rtm/DataFlowComponentBase.h>
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
+#include <rtm/Manager.h>
+#include <rtm/idl/BasicDataTypeSkel.h>
+#include <rtm/idl/ExtendedDataTypesSkel.h>
 
 // Service implementation headers
 // <rtc-template block="service_impl_h">
@@ -37,15 +37,15 @@
 
 using namespace RTC;
 
-class MCControl  : public RTC::DataFlowComponentBase
+class MCControl : public RTC::DataFlowComponentBase
 {
- public:
-  MCControl(RTC::Manager* manager);
+public:
+  MCControl(RTC::Manager * manager);
   ~MCControl();
 
   // The initialize action (on CREATED->ALIVE transition)
-  // formaer rtc_init_entry() 
- virtual RTC::ReturnCode_t onInitialize();
+  // formaer rtc_init_entry()
+  virtual RTC::ReturnCode_t onInitialize();
 
   // The finalize action (on ALIVE->END transition)
   // formaer rtc_exiting_entry()
@@ -82,7 +82,7 @@ class MCControl  : public RTC::DataFlowComponentBase
   // The reset action that is invoked resetting
   // This is same but different the former rtc_init_entry()
   // virtual RTC::ReturnCode_t onReset(RTC::UniqueId ec_id);
-  
+
   // The state update action that is invoked after onExecute() action
   // no corresponding operation exists in OpenRTm-aist-0.2.0
   // virtual RTC::ReturnCode_t onStateUpdate(RTC::UniqueId ec_id);
@@ -91,8 +91,7 @@ class MCControl  : public RTC::DataFlowComponentBase
   // no corresponding operation exists in OpenRTm-aist-0.2.0
   // virtual RTC::ReturnCode_t onRateChanged(RTC::UniqueId ec_id);
 
-
- protected:
+protected:
   // Configuration variable declaration
   // <rtc-template block="config_declare">
   double m_timeStep;
@@ -131,8 +130,8 @@ class MCControl  : public RTC::DataFlowComponentBase
   std::vector<double> taucIn;
 
   std::vector<std::string> m_wrenchesNames;
-  std::vector<TimedDoubleSeq*> m_wrenchesIn;
-  std::vector< InPort<TimedDoubleSeq>* > m_wrenchesInIn;
+  std::vector<TimedDoubleSeq *> m_wrenchesIn;
+  std::vector<InPort<TimedDoubleSeq> *> m_wrenchesInIn;
   std::map<std::string, sva::ForceVecd> m_wrenches;
 
   // </rtc-template>
@@ -169,16 +168,15 @@ private:
   std::map<std::string, std::vector<size_t>> gripper_in_index;
   std::map<std::string, std::vector<double>> realGripperQs;
   std::map<std::string, std::vector<std::pair<size_t, size_t>>> gripper_out_index;
+
 public:
   mc_control::MCGlobalController controller;
   bool init;
 };
 
-
 extern "C"
 {
-  DLL_EXPORT void MCControlInit(RTC::Manager* manager);
+  DLL_EXPORT void MCControlInit(RTC::Manager * manager);
 }
 
 #endif // MCCONTROL_H
-

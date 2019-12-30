@@ -9,7 +9,7 @@
 #pragma GCC diagnostic ignored "-Wall"
 #pragma GCC diagnostic ignored "-Wpedantic"
 #ifdef __clang__
-#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#  pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #endif
 #pragma GCC diagnostic pop
 
@@ -20,14 +20,9 @@
 namespace OpenHRP
 {
 
-MCControlServiceSVC_impl::MCControlServiceSVC_impl(MCControl * plugin)
-: m_plugin(plugin)
-{
-}
+MCControlServiceSVC_impl::MCControlServiceSVC_impl(MCControl * plugin) : m_plugin(plugin) {}
 
-MCControlServiceSVC_impl::~MCControlServiceSVC_impl()
-{
-}
+MCControlServiceSVC_impl::~MCControlServiceSVC_impl() {}
 
 CORBA::Boolean MCControlServiceSVC_impl::EnableController(const char * name)
 {
@@ -57,4 +52,4 @@ CORBA::Boolean MCControlServiceSVC_impl::set_gripper(const char * gripper, const
   return true;
 }
 
-}
+} // namespace OpenHRP

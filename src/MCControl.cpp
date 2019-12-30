@@ -14,21 +14,22 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wpedantic"
 #ifdef __clang__
-#pragma GCC diagnostic ignored "-Wdelete-incomplete"
-#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#  pragma GCC diagnostic ignored "-Wdelete-incomplete"
+#  pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #endif
 #include "MCControl.h"
 
 #include <fstream>
 #include <iomanip>
 
-#include <mc_rtc/logging.h>
 #include <mc_rbdyn/rpy_utils.h>
+#include <mc_rtc/logging.h>
 
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
 
 // Module specification
+// clang-format off
 // <rtc-template block="module_spec">
 static const char* mccontrol_spec[] =
   {
@@ -72,6 +73,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_service0(this),
     init(false)
     // </rtc-template>
+// clang-format on
 {
   auto rm = controller.get_robot_module();
   for(const auto & fs : rm->forceSensors())
@@ -82,17 +84,14 @@ MCControl::MCControl(RTC::Manager* manager)
   m_wrenchesInIn.resize(0);
   for(size_t i = 0; i < m_wrenchesNames.size(); ++i)
   {
-    const auto& wrenchName = m_wrenchesNames[i];
+    const auto & wrenchName = m_wrenchesNames[i];
     m_wrenchesIn.push_back(new TimedDoubleSeq());
     m_wrenchesInIn.push_back(new InPort<TimedDoubleSeq>(wrenchName.c_str(), *(m_wrenchesIn[i])));
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
   }
 }
 
-MCControl::~MCControl()
-{
-}
-
+MCControl::~MCControl() {}
 
 RTC::ReturnCode_t MCControl::onInitialize()
 {
@@ -180,13 +179,11 @@ RTC::ReturnCode_t MCControl::onActivated(RTC::UniqueId ec_id)
   return RTC::RTC_OK;
 }
 
-
 RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
 {
   LOG_INFO("onDeactivated")
   return RTC::RTC_OK;
 }
-
 
 RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
 {
@@ -197,8 +194,10 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       m_wrenchesInIn[i]->read();
       if(m_wrenchesIn[i]->data.length() == 6)
       {
-        m_wrenches[m_wrenchesNames[i]].force() = Eigen::Vector3d(m_wrenchesIn[i]->data[0], m_wrenchesIn[i]->data[1], m_wrenchesIn[i]->data[2]);
-        m_wrenches[m_wrenchesNames[i]].couple() = Eigen::Vector3d(m_wrenchesIn[i]->data[3], m_wrenchesIn[i]->data[4], m_wrenchesIn[i]->data[5]);
+        m_wrenches[m_wrenchesNames[i]].force() =
+            Eigen::Vector3d(m_wrenchesIn[i]->data[0], m_wrenchesIn[i]->data[1], m_wrenchesIn[i]->data[2]);
+        m_wrenches[m_wrenchesNames[i]].couple() =
+            Eigen::Vector3d(m_wrenchesIn[i]->data[3], m_wrenchesIn[i]->data[4], m_wrenchesIn[i]->data[5]);
       }
     }
   }
@@ -280,8 +279,8 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     }
     coil::TimeValue coiltm(coil::gettimeofday());
     RTC::Time tm;
-    tm.sec  = static_cast<CORBA::ULong>(coiltm.sec());
-    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec())*1000;
+    tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
     controller.setSensorOrientation(Eigen::Quaterniond(mc_rbdyn::rpyToMat(rpyIn)).normalized());
     controller.setSensorPosition(pIn);
     controller.setSensorAngularVelocity(rateIn);
@@ -292,7 +291,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setJointTorques(taucIn);
     if(controller.running)
     {
-      double t = tm.sec*1e9 + tm.nsec;
+      double t = tm.sec * 1e9 + tm.nsec;
       if(!init)
       {
         LOG_INFO("Init controller")
@@ -340,7 +339,9 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         const auto & ff_state = res.robots_state[0].q.at(controller.robot().mb().joint(0).name());
         if(ff_state.size())
         {
-          Eigen::Vector3d rpyOut = Eigen::Quaterniond(ff_state[0], ff_state[1], ff_state[2], ff_state[3]).toRotationMatrix().eulerAngles(2, 1, 0);
+          Eigen::Vector3d rpyOut = Eigen::Quaterniond(ff_state[0], ff_state[1], ff_state[2], ff_state[3])
+                                       .toRotationMatrix()
+                                       .eulerAngles(2, 1, 0);
           m_rpyOut.data.r = rpyOut[2];
           m_rpyOut.data.p = rpyOut[1];
           m_rpyOut.data.y = rpyOut[0];
@@ -363,7 +364,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       init = false;
       m_qOut = m_qIn;
       /* Still run controller.run() in order to handle some service calls */
-      mc_rbdyn::Robot & robot = const_cast<mc_rbdyn::Robot&>(controller.robot());
+      mc_rbdyn::Robot & robot = const_cast<mc_rbdyn::Robot &>(controller.robot());
       std::vector<std::vector<double>> q = robot.mbc().q;
       if(q[0].size() == 7)
       {
@@ -417,16 +418,11 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
 extern "C"
 {
 
-  void MCControlInit(RTC::Manager* manager)
+  void MCControlInit(RTC::Manager * manager)
   {
     coil::Properties profile(mccontrol_spec);
-    manager->registerFactory(profile,
-                             RTC::Create<MCControl>,
-                             RTC::Delete<MCControl>);
+    manager->registerFactory(profile, RTC::Create<MCControl>, RTC::Delete<MCControl>);
   }
-
 };
 
-
 #pragma GCC diagnostic pop
-

@@ -6,9 +6,9 @@
 /*!
  * @file MCControlComp.cpp
  * @brief Standalone component
- * @date $Date$ 
+ * @date $Date$
  *
- * $Id$ 
+ * $Id$
  */
 
 #pragma GCC diagnostic push
@@ -17,28 +17,26 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wpedantic"
 #ifdef __clang__
-#pragma GCC diagnostic ignored "-Wdelete-incomplete"
-#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#  pragma GCC diagnostic ignored "-Wdelete-incomplete"
+#  pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #endif
 
-#include <rtm/Manager.h>
-#include <iostream>
-#include <string>
 #include "MCControl.h"
+#include <iostream>
+#include <rtm/Manager.h>
+#include <string>
 
 #include <signal.h>
 #include <stdlib.h>
 
-
-void MyModuleInit(RTC::Manager* manager)
+void MyModuleInit(RTC::Manager * manager)
 {
   MCControlInit(manager);
-  RTC::RtcBase* comp;
+  RTC::RtcBase * comp;
 
   // Create a component
   comp = manager->createComponent("MCControl");
   std::cout << comp << std::endl;
-
 
   // Example
   // The following procedure is examples how handle RT-Components.
@@ -54,14 +52,14 @@ void MyModuleInit(RTC::Manager* manager)
 
   // getting port profiles
   // std::cout << "Number of Ports: ";
-  // std::cout << portlist->length() << std::endl << std::endl; 
+  // std::cout << portlist->length() << std::endl << std::endl;
   // for (CORBA::ULong i(0), n(portlist->length()); i < n; ++i)
   //   {
   //     Port_ptr port;
   //     port = (*portlist)[i];
   //     std::cout << "Port" << i << " (name): ";
   //     std::cout << port->get_port_profile()->name << std::endl;
-  //    
+  //
   //     RTC::PortInterfaceProfileList iflist;
   //     iflist = port->get_port_profile()->interfaces;
   //     std::cout << "---interfaces---" << std::endl;
@@ -89,10 +87,10 @@ void catchs(int signo)
   exit(0);
 }
 
-int main (int argc, char** argv)
+int main(int argc, char ** argv)
 {
   signal(SIGINT, catchs);
-  RTC::Manager* manager;
+  RTC::Manager * manager;
   manager = RTC::Manager::init(argc, argv);
 
   // Initialize manager
@@ -116,4 +114,3 @@ int main (int argc, char** argv)
 }
 
 #pragma GCC diagnostic pop
-
