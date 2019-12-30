@@ -24,7 +24,6 @@
 #include "MCControlServiceSVC_impl.h"
 
 #include <mc_control/mc_global_controller.h>
-#include <mc_rtc/ros.h>
 
 #include <chrono>
 

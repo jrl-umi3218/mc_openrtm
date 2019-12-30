@@ -1,0 +1,75 @@
+name: CI of mc_openrtm
+
+on:
+  push:
+    paths-ignore:
+      # Changes to those files don't mandate running CI
+      - ".github/workflows/package.yml"
+      - "debian/**"
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+
+  clang-format:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install clang-format-6.0
+      run: |
+        sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get -qq update
+        sudo apt-get -qq remove clang-6.0 libclang1-6.0 libclang-common-6.0-dev libllvm6.0
+        sudo apt-get -qq install clang-format-6.0 clang-format
+    - name: Run clang-format-check
+      run: |
+        ./.clang-format-check.sh
+  build:
+    needs: clang-format
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04]
+        compiler: [gcc]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
+    - name: Temporary APT mirrors cleanup
+      if: startsWith(runner.os, 'Linux')
+      run: |
+        set -e
+        sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
+    - name: Setup extra APT mirror
+      if: startsWith(runner.os, 'Linux')
+      run: |
+        set -x
+        set -e
+        sudo apt-get install -y apt-transport-https lsb-release ca-certificates gnupg
+        sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key 892EA6EE273707C6495A6FB6220D644C64666806
+        sudo sh -c 'echo "deb https://dl.bintray.com/gergondet/multi-contact-head $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/multi-contact.list'
+        sudo apt update
+    - name: Install dependencies
+      uses: jrl-umi3218/github-actions/install-dependencies@master
+      with:
+        compiler: gcc
+        build-type: RelWithDebInfo
+        ubuntu: |
+          apt: hrpsys-base choreonoid libmc-rtc-dev
+    - name: Build and test
+      uses: jrl-umi3218/github-actions/build-cmake-project@master
+      with:
+        compiler: gcc
+        build-type: RelWithDebInfo
+    - name: Slack Notification
+      if: failure()
+      uses: archive/github-actions-slack@master
+      with:
+        slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        slack-channel: '#ci'
+        slack-text: >
+          [mc_openrtm] Build *${{ matrix.os }}/${{ matrix.build-type }} (${{ matrix.compiler }})* failed on ${{ github.ref }}
