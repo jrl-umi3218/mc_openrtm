@@ -1,5 +1,3 @@
-add_required_dependency(openhrp3.1)
-
 install(FILES
     Map01_siri.jpg
     Map03_douF.jpg

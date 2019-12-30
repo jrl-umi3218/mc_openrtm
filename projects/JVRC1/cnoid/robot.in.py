@@ -6,7 +6,7 @@ import sys
 import math
 
 # path
-sys.path.append("/usr/local/lib/python2.7/dist-packages/hrpsys")
+sys.path.append("@HRPSYS_BASE_PREFIX@/lib/python2.7/dist-packages/hrpsys")
 sys.path.append(os.getcwd())
 
 # config
@@ -26,8 +26,8 @@ nsport = 2809
 nshost = "localhost"
 
 modelName = 'JVRC1'
-url = 'file:///' + \
-    'usr/local/share/OpenHRP-3.1/robot/JVRC1/model/HRP4LIRMM_main.wrl'
+url = 'file://' + \
+    '@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/robot/JVRC1/main.wrl'
 
 # pose parameters
 timeToHalfsitPose = 3.0  # [sec]

@@ -1,3 +1,4 @@
+add_required_dependency(openhrp3.1)
 find_package(choreonoid QUIET)
 if(choreonoid_FOUND)
   add_subdirectory(cnoid)

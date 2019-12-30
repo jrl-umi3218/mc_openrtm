@@ -1,11 +1,21 @@
+set(CONFIG_FILES
+  PDcontroller.in.conf.choreonoid
+  robot.in.conf
+  robot.in.py
+  RobotHardware.in.conf
+  sim_mc.in.cnoid
+)
+
+foreach(CFG ${CONFIG_FILES})
+  string(REPLACE ".in" "" CFG_OUT "${CFG}")
+  configure_file(${CFG} ${CMAKE_CURRENT_BINARY_DIR}/${CFG_OUT} @ONLY)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CFG_OUT}
+    DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/JVRC1")
+endforeach()
+
 install(FILES
-  PDcontroller.conf.choreonoid
   PDgains_sim.dat
-  RobotHardware.conf
-  robot.conf
-  robot.py
   rtc.conf.choreonoid
-  sim_mc.cnoid
   sim_mc.py
   DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/JVRC1"
   )
