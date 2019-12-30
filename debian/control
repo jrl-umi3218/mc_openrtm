@@ -1,0 +1,33 @@
+Source: mc-openrtm
+Priority: optional
+Maintainer: Pierre Gergondet <pierre.gergondet+ppa@gmail.com>
+Standards-Version: 3.9.5
+Section: science
+Homepage: https://github.com/jrl-umi3218/mc_openrtm
+Vcs-Git: https://github.com/jrl-umi3218/mc_openrtm
+Vcs-Browser: https://github.com/jrl-umi3218/mc_openrtm
+Build-Depends: debhelper (>= 9),
+               cmake,
+               hrpsys-base,
+               libcnoid-dev,
+               libmc-rtc-dev
+
+Package: mc-openrtm
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Suggests: jvrc-choreonoid
+Description: mc-openrtm - Interface between OpenRTM and mc_rtc
+ This package contains an interface between OpenRTM and mc_rtc to be used in
+ the Choreonoid simulation interface.
+
+Package: jvrc-choreonoid
+Section: science
+Architecture: any
+Depends: mc-openrtm (= ${binary:Version}),
+         ${shlibs:Depends},
+         choreonoid
+Description: Choreonoid project for mc_openrtm and JVRC1
+ This package contains a sample Choreonoid project using the JVRC1 robot and
+ the correct mc_rtc interface.
