@@ -1,0 +1,1274 @@
+#VRML V2.0 utf8
+
+PROTO Joint [
+    exposedField     SFVec3f      center              0 0 0
+    exposedField     MFNode       children            []
+    exposedField     MFFloat      llimit              []
+    exposedField     MFFloat      lvlimit             []
+    exposedField     SFRotation   limitOrientation    0 0 1 0
+    exposedField     SFString     name                ""
+    exposedField     SFRotation   rotation            0 0 1 0
+    exposedField     SFVec3f      scale               1 1 1
+    exposedField     SFRotation   scaleOrientation    0 0 1 0
+    exposedField     MFFloat      stiffness           [ 0 0 0 ]
+    exposedField     SFVec3f      translation         0 0 0
+    exposedField     MFFloat      ulimit              []
+    exposedField     MFFloat      uvlimit             []
+    exposedField     SFString     jointType           ""
+    exposedField     SFInt32      jointId             -1
+    exposedField     SFString     jointAxis           "Z"
+
+    exposedField     SFFloat      gearRatio           1
+    exposedField     SFFloat      gearEfficiency      1
+    exposedField     SFFloat      rotorInertia        0
+    exposedField     SFFloat      rotorResistor       0
+    exposedField     SFFloat      torqueConst         1
+    exposedField     SFFloat      encoderPulse        1
+]
+{
+    Transform {
+        center           IS center
+        children         IS children
+        rotation         IS rotation
+        scale            IS scale
+        scaleOrientation IS scaleOrientation
+        translation      IS translation
+    }
+}
+
+PROTO Segment [
+    field           SFVec3f     bboxCenter        0 0 0
+    field           SFVec3f     bboxSize          -1 -1 -1
+    exposedField    SFVec3f     centerOfMass      0 0 0
+    exposedField    MFNode      children          [ ]
+    exposedField    SFNode      coord             NULL
+    exposedField    MFNode      displacers        [ ]
+    exposedField    SFFloat     mass              0 
+    exposedField    MFFloat     momentsOfInertia  [ 0 0 0 0 0 0 0 0 0 ]
+    exposedField    SFString    name              ""
+    eventIn         MFNode      addChildren
+    eventIn         MFNode      removeChildren
+]
+{
+    Group {
+        addChildren    IS addChildren
+        bboxCenter     IS bboxCenter
+        bboxSize       IS bboxSize
+        children       IS children
+        removeChildren IS removeChildren
+    }
+}
+
+PROTO Humanoid [
+    field           SFVec3f    bboxCenter            0 0 0
+    field           SFVec3f    bboxSize              -1 -1 -1
+    exposedField    SFVec3f    center                0 0 0
+    exposedField    MFNode     humanoidBody          [ ]
+    exposedField    MFString   info                  [ ]
+    exposedField    MFNode     joints                [ ]
+    exposedField    SFString   name                  ""
+    exposedField    SFRotation rotation              0 0 1 0
+    exposedField    SFVec3f    scale                 1 1 1
+    exposedField    SFRotation scaleOrientation      0 0 1 0
+    exposedField    MFNode     segments              [ ]
+    exposedField    MFNode     sites                 [ ]
+    exposedField    SFVec3f    translation           0 0 0
+    exposedField    SFString   version               "1.1"
+    exposedField    MFNode     viewpoints            [ ]
+]
+{
+  Transform {
+    bboxCenter       IS bboxCenter
+    bboxSize         IS bboxSize
+    center           IS center
+    rotation         IS rotation
+    scale            IS scale
+    scaleOrientation IS scaleOrientation
+    translation      IS translation
+    children [
+      Group {
+        children IS viewpoints
+      }
+      Group {
+        children IS humanoidBody 
+      }
+    ]
+  }
+}
+
+PROTO VisionSensor [
+  exposedField SFVec3f    translation       0 0 0
+  exposedField SFRotation rotation              0 0 1 0
+  #exposedField SFRotation orientation       0 0 1 0
+  exposedField SFFloat    fieldOfView       0.785398
+  exposedField SFString   name              ""
+  exposedField SFFloat    frontClipDistance 0.01
+  exposedField SFFloat    backClipDistance  10.0
+  exposedField SFString   type              "NONE"
+  exposedField SFInt32    sensorId          -1
+  exposedField SFInt32    width             320  # 
+  exposedField SFInt32    height            240  # 
+  #exposedField MFNode       children            [] # for me
+  exposedField SFFloat    frameRate         30
+]
+{
+  Transform {
+    rotation         IS rotation
+    translation      IS translation
+    #children IS children # for me
+  }
+}
+
+
+PROTO ForceSensor [  
+exposedField SFVec3f maxForce -1 -1 -1
+  exposedField SFVec3f maxTorque -1 -1 -1
+  exposedField SFVec3f translation 0 0 0
+  exposedField SFRotation rotation 0 0 1 0
+  exposedField SFInt32 sensorId -1
+]
+{
+  Transform {
+translation IS translation
+    rotation IS rotation
+  }
+}
+
+PROTO Gyro [
+  exposedField SFVec3f maxAngularVelocity -1 -1 -1
+  exposedField SFVec3f translation 0 0 0
+  exposedField SFRotation rotation 0 0 1 0
+  exposedField SFInt32 sensorId -1
+]
+{
+  Transform {
+    translation IS translation
+    rotation IS rotation
+  }
+}
+
+PROTO AccelerationSensor [
+  exposedField SFVec3f maxAcceleration -1 -1 -1
+  exposedField SFVec3f translation 0 0 0
+  exposedField SFRotation rotation 0 0 1 0
+  exposedField SFInt32 sensorId -1
+]
+{
+  Transform {
+    translation IS translation
+    rotation IS rotation
+  }
+}
+
+PROTO PressureSensor [
+  exposedField SFFloat maxPressure -1
+  exposedField SFVec3f translation 0 0 0
+  exposedField SFRotation rotation 0 0 1 0
+  exposedField SFInt32 sensorId -1
+]
+{
+  Transform {
+    translation IS translation
+    rotation IS rotation
+  }
+}
+
+PROTO PhotoInterrupter [
+  exposedField SFVec3f transmitter 0 0 0
+  exposedField SFVec3f receiver 0 0 0
+  exposedField SFInt32 sensorId -1
+]
+{
+  Transform{
+    children [
+      Transform{
+        translation IS transmitter
+      }
+      Transform{
+        translation IS receiver
+      }
+    ]
+  }
+}
+
+PROTO RangeSensor [
+  exposedField SFVec3f    translation       0 0 0
+  exposedField SFRotation rotation          0 0 1 0
+  exposedField MFNode     children          [ ]
+  exposedField SFInt32    sensorId          -1
+  exposedField SFFloat    scanAngle         3.14159 #[rad]
+  exposedField SFFloat    scanStep          0.1     #[rad]
+  exposedField SFFloat    scanRate          10      #[Hz]
+  exposedField SFFloat    minDistance        0.01
+  exposedField SFFloat    maxDistance        10
+]
+{
+  Transform {
+    rotation         IS rotation
+    translation      IS translation
+    children         IS children
+  }
+}
+NavigationInfo {
+  avatarSize    0.5
+  headlight     TRUE
+  type  ["EXAMINE", "ANY"]
+}
+
+Background {
+  #skyColor 0.6 0.4 0.4
+  skyColor 0.4 0.6 0.4
+}
+
+Viewpoint {
+  position    3 0 0.835
+  orientation 0.5770 0.5775 0.5775 2.0935
+}
+
+DEF JVRC-1 Humanoid {
+  humanoidBody [
+    DEF PELVIS Joint {
+      jointType "free"
+      translation 0 0 0.854
+      children [
+        DEF PELVIS_S Segment {
+	  mass 10
+	  centerOfMass -0.01 0 0.034
+	  momentsOfInertia [0.08958333333333333 0 0 0 0.08958333333333333 0 0 0 0.11249999999999999]
+	  children [
+            DEF gsensor AccelerationSensor {
+              sensorId 0
+            }
+            DEF gyrometer Gyro {
+              sensorId 0
+            }
+	    Inline { url "pelvis.wrl" }
+	  ]
+	}
+	DEF R_HIP_P Joint {
+	  jointType "rotate"
+	  jointAxis "Y"
+	  jointId 0
+	  translation 0 -0.096 0
+	  ulimit [0.7853981633974483] #+45
+	  llimit [-2.0943951023931953] #-120
+	  uvlimit [ 12.56636]
+	  lvlimit [-12.56636]
+	  rotorInertia 0.1925
+	  children [
+	    DEF R_HIP_P_S Segment {
+	      mass 1
+	      momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+	    }
+	    DEF R_HIP_R Joint {
+	      jointType "rotate"
+	      jointAxis "X"
+	      jointId 1
+	      ulimit [0.3490658503988659] #+20
+	      llimit [-0.7853981633974483] #-45
+	      uvlimit [ 8.90117]
+	      lvlimit [-8.90117]
+	      rotorInertia 0.1813
+	      children [
+	        DEF R_HIP_R_S Segment {
+		  mass 1
+	          momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+		  children [
+		    Inline { url "rhip.wrl" }
+		  ]
+		}
+		DEF R_HIP_Y Joint {
+	          jointType "rotate"
+		  jointAxis "Z"
+		  jointId 2
+		  ulimit [0.7853981633974483] #+45
+		  llimit [-0.5235987755982988] #-30
+		  uvlimit [ 8.90117]
+		  lvlimit [-8.90117]
+		  rotorInertia 0.1237
+		  children [
+		    DEF R_HIP_Y_S Segment {
+		      mass 3
+		      centerOfMass 0.01 0 -0.22
+		      momentsOfInertia [0.03192500000000001 0 0 0 0.03452500000000001 0 0 0 0.00865]
+		      children [
+		        Inline { url "rthigh.wrl" }
+		      ]
+		    }
+		    DEF R_KNEE Joint {
+	              jointType "rotate"
+		      jointAxis "Y"
+		      jointId 3
+		      translation -0.02 0 -0.389
+		      ulimit [2.6179938779914944] #+150
+		      llimit [0] #-0
+		      uvlimit [ 14.66075]
+		      lvlimit [-14.66075]
+		      rotorInertia 0.1305
+		      children [
+		        DEF R_KNEE_S Segment {
+			  mass 3
+			  centerOfMass 0.04 0 -0.16
+		          momentsOfInertia [0.03192500000000001 0 0 0 0.03452500000000001 0 0 0 0.00865]
+			  children [
+			    Inline { url "rshank.wrl" }
+			    Transform {
+			      translation 0.04 0 -0.357
+			      children Inline { url "lankle.wrl" }
+			    }
+			  ]
+			}
+			DEF R_ANKLE_R Joint {
+			  jointType "rotate"
+			  jointAxis "X"
+			  jointId 4
+			  ulimit [0.7853981633974483] #+45
+			  llimit [-0.6108652381980153] #-35
+			  uvlimit [ 15.18435]
+			  lvlimit [-15.18435]
+			  rotorInertia 0.0653
+			  translation 0.04 0 -0.357
+			  children [
+			    DEF R_ANKLE_R_S Segment {
+			      mass 1
+			      momentsOfInertia [0.00064 0 0 0 0.00064 0 0 0 0.00064]
+			      children [
+			      ]
+			    }
+			    DEF R_ANKLE_P Joint {
+			      jointType "rotate"
+			      jointAxis "Y"
+			      jointId 5
+			      ulimit [0.9599310885968813] #+55
+			      llimit [-1.4835298641951802] #-85
+			      uvlimit [ 14.18435]
+			      lvlimit [-14.18435]
+			      rotorInertia 0.1337
+			      children [
+			        DEF R_ANKLE_P_S Segment {
+				  mass 1.5
+				  centerOfMass 0.03 0 -0.07
+				  momentsOfInertia [0.0014166666666666668 0 0 0 0.0056166666666666665 0 0 0 0.006216666666666666]
+				  children [
+				    Inline { url "rfoot.wrl" }
+				  ]
+				}
+				DEF rfsensor ForceSensor {
+				  sensorId 0
+				}
+			      ]
+			    } # R_ANKLE_P
+			  ]
+			} # R_ANKLE_R
+		      ]
+		    } # R_KNEE
+		  ]
+		} # R_HIP_Y
+	      ]
+	    } # R_HIP_R
+	  ]
+	} # R_HIP_P
+	DEF L_HIP_P Joint {
+	  jointType "rotate"
+	  jointAxis "Y"
+	  jointId 6
+	  translation 0 0.096 0
+	  ulimit [0.7853981633974483] #+45
+	  llimit [-2.0943951023931953] #-120
+	  uvlimit [ 12.56636]
+	  lvlimit [-12.56636]
+	  rotorInertia 0.1925
+	  children [
+	    DEF L_HIP_P_S Segment {
+	      mass 1
+	      momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+	    }
+	    DEF L_HIP_R Joint {
+	      jointType "rotate"
+	      jointAxis "X"
+	      jointId 7
+	      ulimit [0.7853981633974483] #+45
+	      llimit [-0.3490658503988659] #-20
+	      uvlimit [ 8.90117]
+	      lvlimit [-8.90117]
+	      rotorInertia 0.1813
+	      children [
+	        DEF L_HIP_R_S Segment {
+		  mass 1
+	          momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+		  children [
+		    Inline { url "lhip.wrl" }
+		  ]
+		}
+		DEF L_HIP_Y Joint {
+	          jointType "rotate"
+		  jointAxis "Z"
+		  jointId 8
+		  ulimit [0.5235987755982988] #+30
+		  llimit [-0.7853981633974483] #-45
+		  uvlimit [ 8.90117]
+		  lvlimit [-8.90117]
+		  rotorInertia 0.1237
+		  children [
+		    DEF L_HIP_Y_S Segment {
+		      mass 3
+		      centerOfMass 0.01 0 -0.22
+		      momentsOfInertia [0.03192500000000001 0 0 0 0.03452500000000001 0 0 0 0.00865]
+		      children [
+		        Inline { url "lthigh.wrl" }
+		      ]
+		    }
+		    DEF L_KNEE Joint {
+	              jointType "rotate"
+		      jointAxis "Y"
+		      jointId 9
+		      translation -0.02 0 -0.389
+		      ulimit [2.6179938779914944] #+150
+		      llimit [0] #-0
+		      uvlimit [ 14.66075]
+		      lvlimit [-14.66075]
+		      rotorInertia 0.1305
+		      children [
+		        DEF L_KNEE_S Segment {
+			  mass 3
+			  centerOfMass 0.04 0 -0.16
+		          momentsOfInertia [0.03192500000000001 0 0 0 0.03452500000000001 0 0 0 0.00865]
+			  children [
+			    Inline { url "lshank.wrl" }
+			    Transform {
+			      translation 0.04 0 -0.357
+			      children Inline { url "lankle.wrl" }
+			    }
+			  ]
+			}
+			DEF L_ANKLE_R Joint {
+	                  jointType "rotate"
+			  jointAxis "X"
+			  jointId 10
+			  ulimit [0.6108652381980153] #+35
+			  llimit [-0.7853981633974483] #-45
+			  uvlimit [ 15.18435]
+			  lvlimit [-15.18435]
+			  rotorInertia 0.0653
+			  translation 0.04 0 -0.357
+			  children [
+			    DEF L_ANKLE_R_S Segment {
+			      mass 1
+			      momentsOfInertia [0.00064 0 0 0 0.00064 0 0 0 0.00064]
+			      children [
+			      ]
+			    }
+			    DEF L_ANKLE_P Joint {
+			      jointType "rotate"
+			      jointAxis "Y"
+			      jointId 11
+			      ulimit [0.9599310885968813] #+55
+			      llimit [-1.4835298641951802] #-85
+			      uvlimit [ 14.18435]
+			      lvlimit [-14.18435]
+			      rotorInertia 0.1337
+			      children [
+			        DEF L_ANKLE_P_S Segment {
+				  mass 1.5
+				  centerOfMass 0.03 0 -0.07
+				  momentsOfInertia [0.0014166666666666668 0 0 0 0.0056166666666666665 0 0 0 0.006216666666666666]
+				  children [
+				    Inline { url "lfoot.wrl" }
+				  ]
+				}
+				DEF lfsensor ForceSensor {
+				  sensorId 1
+				}
+			      ]
+			    } # L_ANKLE_P
+			  ]
+			} # L_ANKLE_R
+		      ]
+		    } # L_KNEE
+		  ]
+		} # L_HIP_Y
+	      ]
+	    } # L_HIP_R
+	  ]
+	} # L_HIP_P
+	DEF WAIST_Y Joint {
+	  jointType "rotate"
+	  jointAxis "Z"
+	  jointId 12
+	  translation 0 0 0.192
+	  ulimit [ 0.7853981633974483] #+45
+	  llimit [-0.7853981633974483] #-45
+	  uvlimit [ 8.90117]
+	  lvlimit [-8.90117]
+	  rotorInertia 0.1221
+	  children [
+	    DEF WAIST_Y_S Segment {
+	      mass 1
+	      centerOfMass 0 0 -0.07
+	      momentsOfInertia [0.0017333333333333335 0 0 0 0.0017333333333333335 0 0 0 0.0032]
+	      children [
+	        Inline { url "waist.wrl" }
+	      ]
+	    }
+	    DEF WAIST_P Joint {
+	      jointType "rotate"
+	      jointAxis "Y"
+	      jointId 13
+	      ulimit [1.0471975511965976] #+60
+	      llimit [-0.5235987755982988] #-30
+	      uvlimit [ 8.90117]
+	      lvlimit [-8.90117]
+	      rotorInertia 0.1813
+	      children [
+	        DEF WAIST_P_S Segment {
+		  mass 1
+		  momentsOfInertia [0.0024500000000000004 0 0 0 0.002425 0 0 0 0.002425]
+		}
+		DEF WAIST_R Joint {
+		  jointType "rotate"
+		  jointAxis "X"
+		  jointId 14
+		  ulimit [ 0.8726646259971648] #+50
+		  llimit [-0.8726646259971648] #-50
+		  uvlimit [ 9.42477]
+		  lvlimit [-9.42477]
+		  rotorInertia 0.1054
+		  children [
+		    DEF WAIST_R_S Segment {
+		      mass 10
+		      centerOfMass 0.02 0 0.24
+		      momentsOfInertia [0.15708333333333335 0 0 0 0.10108333333333334 0 0 0 0.1366666666666667]
+		      children [
+		        Inline { url "chest.wrl" }
+		      ]
+		    }
+		    DEF NECK_Y Joint {
+		      jointType "rotate"
+		      jointAxis "Z"
+		      jointId 15
+		      translation  -0.003 0 0.453
+		      ulimit [ 1.2217304763960306] #+70
+		      llimit [-1.2217304763960306] #-70
+		      uvlimit [ 5.23598]
+		      lvlimit [-5.23598]
+		      rotorInertia 0.0567
+		      children [
+		        DEF NECK_Y_S Segment {
+			  mass 0.5
+			  centerOfMass 0 0 -0.05
+			  momentsOfInertia [0.0007291666666666668 0 0 0 0.0007291666666666668 0 0 0 0.0006250000000000001]
+			  children [
+			    Inline { url "neck.wrl" }
+			  ]
+			}
+			DEF NECK_R Joint {
+			  jointType "rotate"
+			  jointAxis "X"
+			  jointId 16
+			  ulimit [ 0.8726646259971648] #+50
+			  llimit [-0.8726646259971648] #-50
+			  uvlimit [ 5.75958]
+			  lvlimit [-5.75958]
+			  rotorInertia 0.0596
+			  children [
+			    DEF NECK_R_S Segment {
+			      mass 0.5
+			      momentsOfInertia [0.0005000000000000001 0 0 0 0.0005000000000000001 0 0 0 0.0005000000000000001]
+			    }
+			    DEF NECK_P Joint {
+			      jointType "rotate"
+			      jointAxis "Y"
+			      jointId 17
+			      ulimit [1.0471975511965976] #+60
+			      llimit [-0.8726646259971648] #-50
+			      uvlimit [ 5.75958]
+			      lvlimit [-5.75958]
+			      rotorInertia 0.0596
+			      children [
+			        DEF NECK_P_S Segment {
+				  mass 2
+				  centerOfMass 0.01 0 0.11
+				  momentsOfInertia [0.00968 0 0 0 0.00968 0 0 0 0.00968]
+				  children [
+				    Inline { url "head.wrl" }
+				  ]
+				}
+				DEF rcamera VisionSensor {
+				  translation 0.1 -0.03 0.09
+				  rotation      0.4472 -0.4472 -0.7746 1.8235
+				  frontClipDistance 0.05
+				  width 640
+				  height 480
+				  type "COLOR"
+				  sensorId 0
+				  fieldOfView 1.0
+				} 
+				DEF lcamera VisionSensor {
+				  translation 0.1 0.03 0.09
+				  rotation      0.4472 -0.4472 -0.7746 1.8235
+				  frontClipDistance 0.05
+				  width 640
+				  height 480
+				  type "COLOR"
+				  sensorId 1
+				  fieldOfView 1.0
+				}
+				DEF dcamera VisionSensor {
+				  translation 0.1 0.0 0.09
+				  rotation      0.4472 -0.4472 -0.7746 1.8235
+				  frontClipDistance 0.05
+				  width 640
+				  height 480
+				  type "COLOR_DEPTH"
+				  sensorId 2
+				  fieldOfView 1.0
+				}
+				DEF ranger RangeSensor {
+				  translation 0.1 0.0 0.0
+				  rotation      0.4472 -0.4472 -0.7746 1.8235
+				  sensorId 0
+				  scanAngle 1.5707963267948966
+				  scanStep 0.011344640137963142
+				  scanRate 100
+				  minDistance 0.1
+				  maxDistance 30.0
+				} 
+			      ]
+			    } # NECK_P
+			  ]
+			} # NECK_R
+		      ]
+		    } # NECK_Y
+		    DEF R_SHOULDER_P Joint {
+		      jointType "rotate"
+		      jointAxis "Y"
+		      jointId 18
+		      translation 0 -0.24 0.33
+		      ulimit [1.0471975511965976] #+60
+		      llimit [-3.141592653589793] #-180
+		      uvlimit [ 8.90117]
+		      lvlimit [-8.90117]
+		      rotorInertia 0.1210
+		      children [
+		        DEF R_SHOULDER_P_S Segment {
+			  mass 1
+	                  momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+			  children [
+			    Inline { url "rshoulder.wrl" }
+			  ]
+			}
+			DEF R_SHOULDER_R Joint {
+			  jointType "rotate"
+			  jointAxis "X"
+			  jointId 19
+			  ulimit [0.17453292519943295] #+10
+			  llimit [-1.7453292519943295] #-100
+		      	  uvlimit [ 8.90117]
+		      	  lvlimit [-8.90117]
+		      	  rotorInertia 0.1210
+			  children [
+			    DEF R_SHOULDER_R_S Segment {
+			      mass 1
+	                      momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+			    }
+			    DEF R_SHOULDER_Y Joint {
+			      jointType "rotate"
+			      jointAxis "Z"
+			      jointId 20
+			      ulimit [ 1.5707963267948966] #+90
+			      llimit [-1.5707963267948966] #-90
+		      	      uvlimit [ 4.18879]
+		      	      lvlimit [-4.18879]
+		      	      rotorInertia 0.1231
+			      children [
+			        DEF R_SHOULDER_Y_S Segment {
+				  mass 2
+				  centerOfMass -0.01 0 -0.19
+				  momentsOfInertia [0.013649999999999999 0 0 0 0.0146 0 0 0 0.006350000000000001]
+				  children [
+				    Inline { url "ruarm.wrl" }
+				  ]
+				}
+				DEF R_ELBOW_P Joint {
+				  jointType "rotate"
+				  jointAxis "Y"
+				  jointId 21
+				  translation 0.004 0 -0.305
+				  ulimit [0] #+0
+				  llimit [-2.5307274153917776] #-145
+				  uvlimit [ 9.42477]
+				  lvlimit [-9.42477]
+				  rotorInertia 0.1054
+				  children [
+				    DEF R_ELBOW_P_S Segment {
+				      mass 1
+				      centerOfMass -0.02 0 -0.1
+				      momentsOfInertia [0.010675000000000002 0 0 0 0.010675000000000002 0 0 0 0.0026999999999999997]
+				      children [
+				        Inline { url "rlarm.wrl" }
+				      ]
+				    }
+				    DEF R_ELBOW_Y Joint {
+				      jointType "rotate"
+				      jointAxis "Z"
+				      jointId 22
+				      translation -0.004 0 -0.239
+				      ulimit [ 1.9198621771937625] #+110
+				      llimit [-1.9198621771937625] #-110
+				      uvlimit [ 3.66519]
+				      lvlimit [-3.66519]
+				      rotorInertia 0.1240
+				      children [
+				        DEF R_ELBOW_Y_S Segment {
+					  mass 1
+					  momentsOfInertia [0.00064 0 0 0 0.00064 0 0 0 0.00064] 
+					  children [
+					    Inline { url "rwrist.wrl" }
+					  ]
+					}
+					DEF R_WRIST_R Joint {
+					  jointType "rotate"
+					  jointAxis "X"
+					  jointId 23
+					  ulimit [ 1.9198621771937625] #+110
+					  llimit [-1.9198621771937625] #-110
+					  uvlimit [ 5.75958]
+					  lvlimit [-5.75958]
+					  rotorInertia 0.0876
+					  children [
+					    DEF R_WRIST_R_S Segment {
+					      mass 0.5
+					      momentsOfInertia [0.00032 0 0 0 0.00032 0 0 0 0.00032]
+					    }
+					    DEF R_WRIST_Y Joint {
+					      jointType "rotate"
+					      jointAxis "Z"
+					      jointId 24
+					      ulimit [ 2.6179938779914944] #+150
+					      llimit [-2.6179938779914944] #-150
+					      uvlimit [ 3.66519]
+					      lvlimit [-3.66519]
+					      rotorInertia 0.1240
+					      children [
+					        DEF rhsensor ForceSensor {
+						  sensorId 2
+						}
+					        DEF R_WRIST_Y_S Segment {
+						  mass 0.5
+						  centerOfMass 0 0.01 -0.06
+						  momentsOfInertia [0.0004625 0 0 0 0.0007625 0 0 0 0.0004625]
+						  children [
+						    Inline { url "rpalm.wrl" }
+						  ]
+						}
+						DEF R_UTHUMB Joint {
+						  jointType "rotate"
+						  jointAxis "X"
+						  jointId 25
+						  translation 0 0.023 -0.084
+						  ulimit [0] #+0
+						  llimit [-0.7853981633974483] #-45
+						  uvlimit [ 6.80678]
+						  lvlimit [-6.80678]
+						  rotorInertia 0.0130
+						  children [
+						    DEF R_UTHUMB_S Segment {
+						      mass 0.2
+						      centerOfMass 0 0 -0.015
+						      momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+						      children [
+						        Inline { url "ruthumb.wrl" }
+						      ]
+						    }
+						    DEF R_LTHUMB Joint {
+						      jointType "rotate"
+						      jointAxis "X"
+						      jointId 26
+						      translation 0 0 -0.045
+						      ulimit [0] #+0
+						      llimit [-1.5707963267948966] #-90
+						      uvlimit [ 13.6135]
+						      lvlimit [-13.6135]
+						      rotorInertia 0.032
+						      children [
+						        DEF R_LTHUMB_S Segment {
+							  mass 0.2
+						          centerOfMass 0 0 -0.015
+						          momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+							  children [
+							    Inline { url "rlthumb.wrl" }
+							  ]
+							}
+						      ]
+						    }
+						  ]
+						} # R_UTHUMB
+						DEF R_UINDEX Joint {
+						  jointType "rotate"
+						  jointAxis "X"
+						  jointId 27
+						  translation 0.025 -0.006 -0.102
+						  ulimit [1.5707963267948966] #+90
+						  llimit [0] #-0
+						  uvlimit [ 9.42477]
+						  lvlimit [-9.42477]
+						  rotorInertia 0.0073
+						  children [
+						    DEF R_UINDEX_S Segment {
+						      mass 0.2
+						      centerOfMass 0 0 -0.015
+						      momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+						      children [
+						        Inline { url "ruindex.wrl" }
+						      ]
+						    }
+						    DEF R_LINDEX Joint {
+						      jointType "rotate"
+						      jointAxis "X"
+						      jointId 28
+						      translation 0 0 -0.045
+						      ulimit [1.5707963267948966] #+90
+						      llimit [0] #-0
+						      uvlimit [ 5.75958]
+						      lvlimit [-5.75958]
+						      rotorInertia 0.0039
+						      children [
+						        DEF R_LINDEX_S Segment {
+							  mass 0.2
+						          centerOfMass 0 0 -0.015
+						          momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+							  children [
+							    Inline { url "rlindex.wrl" }
+							  ]
+							}
+						      ]
+						    }
+						  ]
+						} # R_UINDEX
+						DEF R_ULITTLE Joint {
+						  jointType "rotate"
+						  jointAxis "X"
+						  jointId 29
+						  translation -0.025 -0.006 -0.102
+						  ulimit [1.5707963267948966] #+90
+						  llimit [0] #-0
+
+						  uvlimit [ 9.42477]
+						  lvlimit [-9.42477]
+						  rotorInertia 0.0073
+						  children [
+						    DEF R_ULITTLE_S Segment {
+						      mass 0.2
+						      centerOfMass 0 0 -0.015
+						      momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+						      children [
+						        Inline { url "rulittle.wrl" }
+						      ]
+						    }
+						    DEF R_LLITTLE Joint {
+						      jointType "rotate"
+						      jointAxis "X"
+						      jointId 30
+						      translation 0 0 -0.045
+						      ulimit [1.5707963267948966] #+90
+						      llimit [0] #-0
+						      uvlimit [ 5.75958]
+						      lvlimit [-5.75958]
+						      rotorInertia 0.0039
+						      children [
+						        DEF R_LLITTLE_S Segment {
+							  mass 0.2
+						          centerOfMass 0 0 -0.015
+						          momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+							  children [
+							    Inline { url "rllittle.wrl" }
+							  ]
+							}
+						      ]
+						    } # R_LLITTLE
+						  ]
+						} # R_ULITTLE
+					      ]
+					    } # R_WRIST_Y
+					  ]
+					} # R_WRIST_R
+				      ]
+				    } # R_ELBOW_Y
+				  ]
+				} # R_ELBOW_P
+			      ]
+			    } # R_SHOULDER_Y
+			  ]
+			} # R_SHOULDER_R
+		      ]
+		    } # R_SHOULDER_P
+		    DEF L_SHOULDER_P Joint {
+		      jointType "rotate"
+		      jointAxis "Y"
+		      jointId 31
+		      translation 0 0.24 0.33
+		      ulimit [1.0471975511965976] #+60
+		      llimit [-3.141592653589793] #-180
+		      uvlimit [ 8.90117]
+		      lvlimit [-8.90117]
+		      rotorInertia 0.1210
+		      children [
+		        DEF L_SHOULDER_P_S Segment {
+			  mass 1
+	                  momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+			  children [
+			    Inline { url "lshoulder.wrl" }
+			  ]
+			}
+			DEF L_SHOULDER_R Joint {
+			  jointType "rotate"
+			  jointAxis "X"
+			  jointId 32
+			  ulimit [1.7453292519943295] #+100
+			  llimit [-0.17453292519943295] #-10
+		      	  uvlimit [ 8.90117]
+		      	  lvlimit [-8.90117]
+		      	  rotorInertia 0.1210
+			  children [
+			    DEF L_SHOULDER_R_S Segment {
+			      mass 1
+	                      momentsOfInertia [0.0019600000000000004 0 0 0 0.0019600000000000004 0 0 0 0.0019600000000000004]
+			    }
+			    DEF L_SHOULDER_Y Joint {
+			      jointType "rotate"
+			      jointAxis "Z"
+			      jointId 33
+			      ulimit [ 1.5707963267948966] #+90
+			      llimit [-1.5707963267948966] #-90
+		      	      uvlimit [ 4.18879]
+		      	      lvlimit [-4.18879]
+		      	      rotorInertia 0.1231
+			      children [
+			        DEF L_SHOULDER_Y_S Segment {
+				  mass 2
+				  centerOfMass -0.01 0 -0.19
+				  momentsOfInertia [0.013649999999999999 0 0 0 0.0146 0 0 0 0.006350000000000001]
+				  children [
+				    Inline { url "luarm.wrl" }
+				  ]
+				}
+				DEF L_ELBOW_P Joint {
+				  jointType "rotate"
+				  jointAxis "Y"
+				  jointId 34
+				  translation 0.004 0 -0.305
+				  ulimit [0] #+0
+				  llimit [-2.5307274153917776] #-145
+				  uvlimit [ 9.42477]
+				  lvlimit [-9.42477]
+				  rotorInertia 0.1054
+				  children [
+				    DEF L_ELBOW_P_S Segment {
+				      mass 1
+				      centerOfMass -0.02 0 -0.1
+				      momentsOfInertia [0.010675000000000002 0 0 0 0.010675000000000002 0 0 0 0.0026999999999999997]
+				      children [
+				        Inline { url "llarm.wrl" }
+				      ]
+				    }
+				    DEF L_ELBOW_Y Joint {
+				      jointType "rotate"
+				      jointAxis "Z"
+				      jointId 35
+				      translation -0.004 0 -0.239
+				      ulimit [ 1.9198621771937625] #+110
+				      llimit [-1.9198621771937625] #-110
+				      uvlimit [ 3.66519]
+				      lvlimit [-3.66519]
+				      rotorInertia 0.1240
+				      children [
+				        DEF L_ELBOW_Y_S Segment {
+					  mass 1
+					  momentsOfInertia [0.00064 0 0 0 0.00064 0 0 0 0.00064] 
+					  children [
+					    Inline { url "lwrist.wrl" }
+					  ]
+					}
+					DEF L_WRIST_R Joint {
+					  jointType "rotate"
+					  jointAxis "X"
+					  jointId 36
+					  ulimit [ 1.9198621771937625] #+110
+					  llimit [-1.9198621771937625] #-110
+					  uvlimit [ 5.75958]
+					  lvlimit [-5.75958]
+					  rotorInertia 0.0876
+					  children [
+					    DEF L_WRIST_R_S Segment {
+					      mass 0.5
+					      momentsOfInertia [0.00032 0 0 0 0.00032 0 0 0 0.00032]
+					    }
+					    DEF L_WRIST_Y Joint {
+					      jointType "rotate"
+					      jointAxis "Z"
+					      jointId 37
+					      ulimit [ 2.6179938779914944] #+150
+					      llimit [-2.6179938779914944] #-150
+					      uvlimit [ 3.66519]
+					      lvlimit [-3.66519]
+					      rotorInertia 0.1240
+					      children [
+					        DEF lhsensor ForceSensor {
+						  sensorId 3
+						}
+					        DEF L_WRIST_Y_S Segment {
+						  mass 0.5
+						  centerOfMass 0 -0.01 -0.06
+						  momentsOfInertia [0.0004625 0 0 0 0.0007625 0 0 0 0.0004625]
+						  children [
+						    Inline { url "lpalm.wrl" }
+						  ]
+						}
+						DEF L_UTHUMB Joint {
+						  jointType "rotate"
+						  jointAxis "X"
+						  jointId 38
+						  translation 0 -0.023 -0.084
+						  ulimit [0.7853981633974483] #+45
+						  llimit [-0] #-0
+						  uvlimit [ 6.80678]
+						  lvlimit [-6.80678]
+						  rotorInertia 0.0130
+						  children [
+						    DEF L_UTHUMB_S Segment {
+						      mass 0.2
+						      centerOfMass 0 0 -0.015
+						      momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+						      children [
+						        Inline { url "luthumb.wrl" }
+						      ]
+						    }
+						    DEF L_LTHUMB Joint {
+						      jointType "rotate"
+						      jointAxis "X"
+						      jointId 39
+						      translation 0 0 -0.045
+						      ulimit [1.5707963267948966] #+90
+						      llimit [-0] #-0
+						      uvlimit [ 13.6135]
+						      lvlimit [-13.6135]
+						      rotorInertia 0.032
+						      children [
+						        DEF L_LTHUMB_S Segment {
+							  mass 0.2
+						          centerOfMass 0 0 -0.015
+						          momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+							  children [
+							    Inline { url "llthumb.wrl" }
+							  ]
+							}
+						      ]
+						    }
+						  ]
+						} # L_UTHUMB
+						DEF L_UINDEX Joint {
+						  jointType "rotate"
+						  jointAxis "X"
+						  jointId 40
+						  translation 0.025 0.006 -0.102
+						  ulimit [0] #+0
+						  llimit [-1.5707963267948966] #-90
+						  uvlimit [ 9.42477]
+						  lvlimit [-9.42477]
+						  rotorInertia 0.0073
+						  children [
+						    DEF L_UINDEX_S Segment {
+						      mass 0.2
+						      centerOfMass 0 0 -0.015
+						      momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+						      children [
+						        Inline { url "luindex.wrl" }
+						      ]
+						    }
+						    DEF L_LINDEX Joint {
+						      jointType "rotate"
+						      jointAxis "X"
+						      jointId 41
+						      translation 0 0 -0.045
+						      ulimit [0] #+0
+						      llimit [-1.5707963267948966] #-90
+						      uvlimit [ 5.75958]
+						      lvlimit [-5.75958]
+						      rotorInertia 0.0039
+						      children [
+						        DEF L_LINDEX_S Segment {
+							  mass 0.2
+						          centerOfMass 0 0 -0.015
+						          momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+							  children [
+							    Inline { url "llindex.wrl" }
+							  ]
+							}
+						      ]
+						    }
+						  ]
+						} # L_UINDEX
+						DEF L_ULITTLE Joint {
+						  jointType "rotate"
+						  jointAxis "X"
+						  jointId 42
+						  translation -0.025 0.006 -0.102
+						  ulimit [0] #+0
+						  llimit [-1.5707963267948966] #-90
+						  uvlimit [ 9.42477]
+						  lvlimit [-9.42477]
+						  rotorInertia 0.0073
+						  children [
+						    DEF L_ULITTLE_S Segment {
+						      mass 0.2
+						      centerOfMass 0 0 -0.015
+						      momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+						      children [
+						        Inline { url "lulittle.wrl" }
+						      ]
+						    }
+						    DEF L_LLITTLE Joint {
+						      jointType "rotate"
+						      jointAxis "X"
+						      jointId 43
+						      translation 0 0 -0.045
+						      ulimit [0] #+0
+						      llimit [-1.5707963267948966] #-90
+						      uvlimit [ 5.75958]
+						      lvlimit [-5.75958]
+						      rotorInertia 0.0039
+						      children [
+						        DEF L_LLITTLE_S Segment {
+							  mass 0.2
+						          centerOfMass 0 0 -0.015
+						          momentsOfInertia [6.166666666666667e-05 0 0 0 6.166666666666667e-05 0 0 0 2.666666666666667e-05]
+							  children [
+							    Inline { url "lllittle.wrl" }
+							  ]
+							}
+						      ]
+						    } # L_LLITTLE
+						  ]
+						} # L_ULITTLE
+					      ]
+					    } # L_WRIST_Y
+					  ]
+					} # L_WRIST_R
+				      ]
+				    } # L_ELBOW_Y
+				  ]
+				} # L_ELBOW_P
+			      ]
+			    } # L_SHOULDER_Y
+			  ]
+			} # L_SHOULDER_R
+		      ]
+		    } # L_SHOULDER_P
+		  ]
+		} # WAIST_R
+	      ]
+	    } # WAIST_P
+	  ]
+	} # WAIST_Y
+      ]
+    }
+  ]
+  joints [
+    USE PELVIS,
+    USE R_HIP_P,
+    USE R_HIP_R,
+    USE R_HIP_P,
+    USE R_HIP_Y,
+    USE R_KNEE,
+    USE R_ANKLE_P,
+    USE R_ANKLE_R,
+    USE L_HIP_P,
+    USE L_HIP_R,
+    USE L_HIP_P,
+    USE L_HIP_Y,
+    USE L_KNEE,
+    USE L_ANKLE_P,
+    USE L_ANKLE_R,
+    USE WAIST_Y,
+    USE WAIST_R,
+    USE WAIST_P,
+    USE NECK_Y,
+    USE NECK_R,
+    USE NECK_P,
+    USE R_SHOULDER_P,
+    USE R_SHOULDER_R,
+    USE R_SHOULDER_Y,
+    USE R_ELBOW_P,
+    USE R_ELBOW_Y,
+    USE R_WRIST_R,
+    USE R_WRIST_Y,
+    USE R_UTHUMB,
+    USE R_LTHUMB,
+    USE R_UINDEX,
+    USE R_LINDEX,
+    USE R_ULITTLE,
+    USE R_LLITTLE,
+    USE L_SHOULDER_P,
+    USE L_SHOULDER_R,
+    USE L_SHOULDER_Y,
+    USE L_ELBOW_P,
+    USE L_ELBOW_Y,
+    USE L_WRIST_R,
+    USE L_WRIST_Y,
+    USE L_UTHUMB,
+    USE L_LTHUMB,
+    USE L_UINDEX,
+    USE L_LINDEX,
+    USE L_ULITTLE,
+    USE L_LLITTLE,
+  ]
+  segments [
+    USE PELVIS_S,
+    USE R_HIP_P_S,
+    USE R_HIP_R_S,
+    USE R_HIP_P_S,
+    USE R_HIP_Y_S,
+    USE R_KNEE_S,
+    USE R_ANKLE_P_S,
+    USE R_ANKLE_R_S,
+    USE L_HIP_P_S,
+    USE L_HIP_R_S,
+    USE L_HIP_P_S,
+    USE L_HIP_Y_S,
+    USE L_KNEE_S,
+    USE L_ANKLE_P_S,
+    USE L_ANKLE_R_S,
+    USE WAIST_Y_S,
+    USE WAIST_R_S,
+    USE WAIST_P_S,
+    USE NECK_Y_S,
+    USE NECK_R_S,
+    USE NECK_P_S,
+    USE R_SHOULDER_P_S,
+    USE R_SHOULDER_R_S,
+    USE R_SHOULDER_Y_S,
+    USE R_ELBOW_P_S,
+    USE R_ELBOW_Y_S,
+    USE R_WRIST_R_S,
+    USE R_WRIST_Y_S,
+    USE R_UTHUMB_S,
+    USE R_LTHUMB_S,
+    USE R_UINDEX_S,
+    USE R_LINDEX_S,
+    USE R_ULITTLE_S,
+    USE R_LLITTLE_S,
+    USE L_SHOULDER_P_S,
+    USE L_SHOULDER_R_S,
+    USE L_SHOULDER_Y_S,
+    USE L_ELBOW_P_S,
+    USE L_ELBOW_Y_S,
+    USE L_WRIST_R_S,
+    USE L_WRIST_Y_S,
+    USE L_UTHUMB_S,
+    USE L_LTHUMB_S,
+    USE L_UINDEX_S,
+    USE L_LINDEX_S,
+    USE L_ULITTLE_S,
+    USE L_LLITTLE_S,
+  ]
+}

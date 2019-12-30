@@ -1,0 +1,5 @@
+find_package(choreonoid QUIET)
+if(choreonoid_FOUND)
+  add_subdirectory(cnoid)
+endif()
+add_subdirectory(model)
