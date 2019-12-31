@@ -3,6 +3,7 @@ set(CONFIG_FILES
   robot.in.conf
   robot.in.py
   RobotHardware.in.conf
+  rtc.in.conf.choreonoid
   sim_mc.in.cnoid
 )
 
@@ -15,8 +16,11 @@ endforeach()
 
 install(FILES
   PDgains_sim.dat
-  rtc.conf.choreonoid
   sim_mc.py
+  DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/JVRC1"
+  )
+install(PROGRAMS
+  clear-omninames.sh
   DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/JVRC1"
   )
 

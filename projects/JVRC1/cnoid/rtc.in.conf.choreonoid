@@ -8,7 +8,7 @@ exec_cxt.periodic.rate: 10
 manager.shutdown_onrtcs: NO
 manager.is_master: YES
 manager.refstring_path: /tmp/rtcmanager.ref
-manager.modules.load_path: /usr/local/lib
+manager.modules.load_path: @HRPSYS_BASE_PREFIX@/lib
 manager.modules.search_auto: NO
 example.RobotHardware.config_file: RobotHardware.conf
 example.SequencePlayer.config_file: robot.conf
