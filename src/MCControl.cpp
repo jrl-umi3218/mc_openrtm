@@ -24,6 +24,7 @@
 
 #include <mc_rbdyn/rpy_utils.h>
 #include <mc_rtc/logging.h>
+#include <mc_rtc/version.h>
 
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
@@ -51,6 +52,18 @@ static const char* mccontrol_spec[] =
   };
 // </rtc-template>
 
+namespace
+{
+  bool init_controller()
+  {
+    if(mc_rtc::MC_RTC_VERSION != mc_rtc::version())
+    {
+      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues and should recompile mc_openrtm")
+    }
+    return false;
+  }
+}
+
 MCControl::MCControl(RTC::Manager* manager)
     // <rtc-template block="initializer">
   : RTC::DataFlowComponentBase(manager),
@@ -71,7 +84,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_rpyOutOut("rpyOut", m_rpyOut),
     m_MCControlServicePortPort("MCControlServicePort"),
     m_service0(this),
-    init(false)
+    init(init_controller())
     // </rtc-template>
 // clang-format on
 {

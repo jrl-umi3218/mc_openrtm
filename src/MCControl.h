@@ -169,8 +169,8 @@ private:
   std::map<std::string, std::vector<std::pair<size_t, size_t>>> gripper_out_index;
 
 public:
-  mc_control::MCGlobalController controller;
   bool init;
+  mc_control::MCGlobalController controller;
 };
 
 extern "C"
