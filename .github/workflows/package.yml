@@ -14,6 +14,8 @@ name: Package mc-openrtm
 # - Finalize the release
 
 on:
+  repository_dispatch:
+    types: [package-master, package-release]
   push:
     branches:
       - master
@@ -29,11 +31,11 @@ jobs:
   # This job does not run on the master branch
   check-tag:
     runs-on: ubuntu-18.04
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
     - uses: actions/checkout@v1
       with:
         submodules: recursive
-      if: github.ref != 'refs/heads/master'
     - name: Check version coherency
       run: |
         set -x
@@ -45,7 +47,6 @@ jobs:
         echo "::set-env name=REJECTION::"
         export TAG=`echo ${{ github.ref }} | sed -e 's@refs/tags/@@'`
         echo "::set-env name=RELEASE_TAG::${TAG}"
-      if: github.ref != 'refs/heads/master'
     - name: Delete tag
       run: |
         set -x
@@ -65,7 +66,6 @@ jobs:
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.RELEASE_TAG }}
-      if: github.ref != 'refs/heads/master'
   # This job build binary packages for Ubuntu
   build-packages:
     needs: check-tag
@@ -81,8 +81,19 @@ jobs:
         submodules: recursive
     - name: Setup environment
       run: |
+        set -e
         set -x
-        export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
+        if [ "${{ github.event.type }}" == "package-master" ]
+        then
+          export REF=master
+        elif [ "${{ github.event.type }}" == "package-release" ]
+        then
+          export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
+          git checkout $REF
+          git submodule sync && git submodule update
+        else
+          export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
+        fi
         if [ $REF == "master" ]
         then
           echo "::set-env name=EXTRA_MIRROR::https://dl.bintray.com/gergondet/multi-contact-head"
@@ -113,7 +124,15 @@ jobs:
     steps:
     - name: Set upload parameters
       run: |
-        export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
+        if [ "${{ github.event.type }}" == "package-master" ]
+        then
+          export REF=master
+        elif [ "${{ github.event.type }}" == "package-release" ]
+        then
+          export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
+        else
+          export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
+        fi
         if [ $REF == "master" ]
         then
           echo "::set-env name=BINTRAY_REPO::multi-contact-head"
