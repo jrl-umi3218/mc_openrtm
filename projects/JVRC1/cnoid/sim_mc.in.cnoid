@@ -5,7 +5,7 @@ items:
   class: RootItem
   children: 
     - 
-      id: 8
+      id: 1
       name: "ModelLoader"
       plugin: Base
       class: ExtCommandItem
@@ -14,7 +14,7 @@ items:
         executeOnLoading: true
         waitingTimeAfterStarted: 0.1
     - 
-      id: 1
+      id: 2
       name: "World"
       plugin: Body
       class: WorldItem
@@ -24,42 +24,42 @@ items:
         materialTableFile: "${SHARE}/default/materials.yaml"
       children: 
         - 
-          id: 2
+          id: 3
           name: "JVRC1"
           plugin: Body
           class: BodyItem
           data: 
             modelFile: "@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/robot/JVRC1/main.wrl"
             currentBaseLink: "PELVIS"
-            rootPosition: [ 0, 0, 0.854 ]
+            rootPosition: [ -0.0164712421, -0.00366884734, 0.823007651 ]
             rootAttitude: [ 
-              1, 0, 0, 
-              0, 1, 0, 
-              0, 0, 1 ]
+              0.999520541, 0.000990316288, -0.030946845, 
+              -0.00104419639, 0.999997967, -0.00172494057, 
+              0.0309450738, 0.00175642811, 0.999519543 ]
             jointPositions: [ 
-               0.000000, -0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000, -0.000000,  0.000000,  0.000000, 
-              -0.000000, -0.000000, -0.000000,  0.000000, -0.000000, -0.000000, -0.000000,  0.000000, -0.000000,  0.000000, 
-               0.000000,  0.000000, -0.000000,  0.000000, -0.000000, -0.000000, -0.000000, -0.000000, -0.000000, -0.000000, 
-              -0.000000, -0.000000, -0.000000, -0.000000,  0.000000, -0.000000, -0.000000, -0.000000,  0.000000,  0.000000, 
-               0.000000,  0.000000,  0.000000,  0.000000 ]
-            initialRootPosition: [ 0, 0, 0.854 ]
+              -0.379810, -0.008074, -0.000838,  0.742713,  0.002117, -0.331916, -0.377849,  0.022870, -0.000819,  0.736924, 
+              -0.021918, -0.328003,  0.000273,  0.132712,  0.002899, -0.000007,  0.000172,  0.000190, -0.046211, -0.158306, 
+               0.002202, -0.510719,  0.000086,  0.001314,  0.000224,  0.002210,  0.003101, -0.002201, -0.002804, -0.002201, 
+              -0.002804, -0.046428,  0.159369, -0.001891, -0.511009, -0.000085, -0.001148, -0.000219, -0.002217, -0.003024, 
+               0.002064,  0.002707,  0.002064,  0.002707 ]
+            initialRootPosition: [ -0.0164712421, -0.00366884734, 0.823007651 ]
             initialRootAttitude: [ 
-              1, 0, 0, 
-              0, 1, 0, 
-              0, 0, 1 ]
+              0.999520541, 0.000990316288, -0.030946845, 
+              -0.00104419639, 0.999997967, -0.00172494057, 
+              0.0309450738, 0.00175642811, 0.999519543 ]
             initialJointPositions: [ 
-               0.000000, -0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000, -0.000000,  0.000000,  0.000000, 
-              -0.000000, -0.000000, -0.000000,  0.000000, -0.000000, -0.000000, -0.000000,  0.000000, -0.000000,  0.000000, 
-               0.000000,  0.000000, -0.000000,  0.000000, -0.000000, -0.000000, -0.000000, -0.000000, -0.000000, -0.000000, 
-              -0.000000, -0.000000, -0.000000, -0.000000,  0.000000, -0.000000, -0.000000, -0.000000,  0.000000,  0.000000, 
-               0.000000,  0.000000,  0.000000,  0.000000 ]
+              -0.379810, -0.008074, -0.000838,  0.742713,  0.002117, -0.331916, -0.377849,  0.022870, -0.000819,  0.736924, 
+              -0.021918, -0.328003,  0.000273,  0.132712,  0.002899, -0.000007,  0.000172,  0.000190, -0.046211, -0.158306, 
+               0.002202, -0.510719,  0.000086,  0.001314,  0.000224,  0.002210,  0.003101, -0.002201, -0.002804, -0.002201, 
+              -0.002804, -0.046428,  0.159369, -0.001891, -0.511009, -0.000085, -0.001148, -0.000219, -0.002217, -0.003024, 
+               0.002064,  0.002707,  0.002064,  0.002707 ]
             zmp: [ 0, 0, 0 ]
             collisionDetection: true
             selfCollisionDetection: false
             isEditable: true
           children: 
             - 
-              id: 3
+              id: 4
               name: "BodyRTC"
               plugin: OpenRTM
               class: BodyRTCItem
@@ -69,12 +69,12 @@ items:
                 moduleName: "PDcontroller"
                 confFileName: "Virtual-JVRC1-RTC.conf"
                 configurationMode: "Use Configuration File"
-                AutoConnect: true
-                InstanceName: "JVRC1Controller(Robot)0"
+                autoConnect: true
+                instanceName: "JVRC1Controller(Robot)0"
                 bodyPeriodicRate: 0.005
                 baseDirectory: "RTC directory"
             - 
-              id: 4
+              id: 5
               name: "SensorVisualizer"
               plugin: Body
               class: SensorVisualizer
@@ -85,7 +85,7 @@ items:
                     name: ForceSensor
                     visualRatio: 0.002
         - 
-          id: 5
+          id: 6
           name: "longfloor"
           plugin: Body
           class: BodyItem
@@ -108,7 +108,7 @@ items:
             selfCollisionDetection: false
             isEditable: true
         - 
-          id: 6
+          id: 7
           name: "AISTSimulator"
           plugin: Body
           class: AISTSimulatorItem
@@ -137,7 +137,7 @@ items:
             2Dmode: false
             oldAccelSensorMode: false
         - 
-          id: 7
+          id: 8
           name: "sim_mc.py"
           plugin: PythonSimScript
           class: PythonSimScriptItem
@@ -157,13 +157,14 @@ views:
     plugin: Base
     class: ItemTreeView
     state: 
-      selected: [ [ 4, "ForceSensor" ], 6 ]
-      checked: [ 2, 3, [ 4, "ForceSensor" ], 5, 7 ]
-      expanded: [ 1, 2, 3, 4, 6 ]
+      selected: [ [ 5, "ForceSensor" ], 7 ]
+      checked: [ 3, 4, [ 5, "ForceSensor" ], 6, 8 ]
+      expanded: [ 2, 3, 4, 5, 7 ]
   - 
     id: 2
     plugin: Base
     class: MessageView
+    mounted: true
   - 
     id: 3
     name: "Multi SE3 Seq"
@@ -219,10 +220,11 @@ views:
     class: SceneView
     mounted: true
     state: 
-      editMode: true
+      editMode: false
       viewpointControlMode: thirdPerson
       collisionLines: false
       polygonMode: fill
+      cullingMode: enabled
       defaultHeadLight: true
       defaultHeadLightIntensity: 0.75
       headLightLightingFromBack: false
@@ -257,9 +259,9 @@ views:
           fieldOfView: 0.6978
           near: 0.01
           far: 10000
-          eye: [ 2.64137413, 0.0555990981, 0.976537843 ]
-          direction: [ -0.988326165, -0.0296586824, -0.149438129 ]
-          up: [ -0.149370887, -0.00448247133, 0.988771078 ]
+          eye: [ 4.23505071, -2.04987619, 1.63200262 ]
+          direction: [ -0.830074485, 0.50892298, -0.227977518 ]
+          up: [ -0.194356426, 0.119160935, 0.973666396 ]
         - 
           camera: [ System, Orthographic ]
           orthoHeight: 20
@@ -330,8 +332,9 @@ views:
       numColumns: 1
       spinBox: true
       slider: true
+      dial: false
       labelOnLeft: true
-      currentBodyItem: 2
+      currentBodyItem: 3
   - 
     id: 12
     name: "Joint State"
@@ -344,10 +347,10 @@ views:
     class: LinkSelectionView
     state: 
       listingMode: "Link List"
-      currentBodyItem: 2
+      currentBodyItem: 3
       bodyItems: 
         - 
-          id: 2
+          id: 3
           selectedLinks: [ 0 ]
   - 
     id: 14
@@ -355,16 +358,20 @@ views:
     plugin: Corba
     class: NameServerView
   - 
-    id: 16
+    id: 15
     plugin: OpenRTM
     class: RTSNameServerView
     state: 
-      host: localhost
-      port: 2809
+      NameServers: 
+        - 
+          isDefaultNameServer: false
+          host: "localhost"
+          port: 2809
   - 
-    id: 17
+    id: 16
     plugin: Python
     class: PythonConsoleView
+    mounted: true
 toolbars: 
   "TimeBar": 
     minTime: 0
@@ -372,7 +379,7 @@ toolbars:
     frameRate: 1000
     playbackFrameRate: 50
     idleLoopDrivenMode: false
-    currentTime: 0
+    currentTime: 11.44
     speedScale: 1
     syncToOngoingUpdates: true
     autoExpansion: true
@@ -385,7 +392,7 @@ toolbars:
     penetrationBlockDepth: 0.0005
     lazyCollisionDetectionMode: true
   "BodyBar": 
-    current: 2
+    current: 3
   "LeggedBodyBar": 
     stanceWidth: 0.15
   "BodyMotionGenerationBar": 
@@ -427,12 +434,12 @@ Body:
   "EditableSceneBody": 
     editableSceneBodies: 
       - 
-        bodyItem: 2
+        bodyItem: 3
         showCenterOfMass: false
         showPpcom: false
         showZmp: false
       - 
-        bodyItem: 5
+        bodyItem: 6
         showCenterOfMass: false
         showPpcom: false
         showZmp: false
@@ -461,9 +468,27 @@ viewAreas:
     type: embedded
     tabs: true
     contents: 
-      type: pane
-      views: [ 5, 9, 12 ]
-      current: 5
+      type: splitter
+      orientation: vertical
+      sizes: [ 767, 203 ]
+      children: 
+        - 
+          type: splitter
+          orientation: horizontal
+          sizes: [ 1390, 526 ]
+          children: 
+            - 
+              type: pane
+              views: [ 5 ]
+              current: 5
+            - 
+              type: pane
+              views: [ 12, 9 ]
+              current: 12
+        - 
+          type: pane
+          views: [ 2, 16 ]
+          current: 2
 layoutOfToolBars: 
   rows: 
     - 
