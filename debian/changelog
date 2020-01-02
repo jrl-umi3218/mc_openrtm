@@ -1,3 +1,10 @@
+mc-openrtm (1.0.1-1ubuntu1) unstable; urgency=medium
+
+  * Fix minor issues with the generated project
+  * Check for potential binary issues with mc_rtc
+
+ -- Pierre Gergondet <pierre.gergondet+ppa@gmail.com>  Thu, 02 Jan 2020 14:39:33 +0800
+
 mc-openrtm (1.0.0-1ubuntu1) unstable; urgency=medium
 
   * Initial release
