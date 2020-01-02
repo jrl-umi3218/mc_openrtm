@@ -85,10 +85,10 @@ jobs:
       run: |
         set -e
         set -x
-        if [ "${{ github.event.type }}" == "package-master" ]
+        if [ "${{ github.event.action }}" == "package-master" ]
         then
           export REF=master
-        elif [ "${{ github.event.type }}" == "package-release" ]
+        elif [ "${{ github.event.action }}" == "package-release" ]
         then
           export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
           git checkout $REF
@@ -126,10 +126,10 @@ jobs:
     steps:
     - name: Set upload parameters
       run: |
-        if [ "${{ github.event.type }}" == "package-master" ]
+        if [ "${{ github.event.action }}" == "package-master" ]
         then
           export REF=master
-        elif [ "${{ github.event.type }}" == "package-release" ]
+        elif [ "${{ github.event.action }}" == "package-release" ]
         then
           export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
         else
@@ -170,10 +170,10 @@ jobs:
     steps:
     - name: Set repository parameters
       run: |
-        if [ "${{ github.event.type }}" == "package-master" ]
+        if [ "${{ github.event.action }}" == "package-master" ]
         then
           export REF=master
-        elif [ "${{ github.event.type }}" == "package-release" ]
+        elif [ "${{ github.event.action }}" == "package-release" ]
         then
           export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
         else
