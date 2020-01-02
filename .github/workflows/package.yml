@@ -31,11 +31,11 @@ jobs:
   # This job does not run on the master branch
   check-tag:
     runs-on: ubuntu-18.04
-    if: startsWith(github.ref, 'refs/tags/')
     steps:
     - uses: actions/checkout@v1
       with:
         submodules: recursive
+      if: startsWith(github.ref, 'refs/tags/')
     - name: Check version coherency
       run: |
         set -x
@@ -47,6 +47,7 @@ jobs:
         echo "::set-env name=REJECTION::"
         export TAG=`echo ${{ github.ref }} | sed -e 's@refs/tags/@@'`
         echo "::set-env name=RELEASE_TAG::${TAG}"
+      if: startsWith(github.ref, 'refs/tags/')
     - name: Delete tag
       run: |
         set -x
@@ -66,6 +67,7 @@ jobs:
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ env.RELEASE_TAG }}
+      if: startsWith(github.ref, 'refs/tags/')
   # This job build binary packages for Ubuntu
   build-packages:
     needs: check-tag
