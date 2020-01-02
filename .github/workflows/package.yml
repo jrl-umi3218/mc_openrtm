@@ -170,7 +170,15 @@ jobs:
     steps:
     - name: Set repository parameters
       run: |
-        export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
+        if [ "${{ github.event.type }}" == "package-master" ]
+        then
+          export REF=master
+        elif [ "${{ github.event.type }}" == "package-release" ]
+        then
+          export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
+        else
+          export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
+        fi
         if [ $REF == "master" ]
         then
           echo "::set-env name=BINTRAY_REPO::multi-contact-head"
