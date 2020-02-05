@@ -28,9 +28,9 @@ install(FILES
   Virtual-JVRC1-RTC.conf
   DESTINATION ${CHOREONOID_PLUGIN_DIR}/rtc/)
 
-if(NOT EXISTS "${CHOREONOID_PLUGIN_DIR}/rtc/PDcontroller.so")
-  if(NOT EXISTS "${HRPSYS_BASE_LIBDIR}/PDcontroller.so")
-    message(FATAL_ERROR "PDcontroller.so from hrpsys-base is required to use this project")
+if(NOT EXISTS "${CHOREONOID_PLUGIN_DIR}/rtc/PDcontroller${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  if(NOT EXISTS "${HRPSYS_BASE_LIBDIR}/PDcontroller${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    message(FATAL_ERROR "PDcontroller${CMAKE_SHARED_LIBRARY_SUFFIX} from hrpsys-base is required to use this project")
   endif()
-  install(FILES "${HRPSYS_BASE_LIBDIR}/PDcontroller.so" DESTINATION "${CHOREONOID_PLUGIN_DIR}/rtc/")
+  install(FILES "${HRPSYS_BASE_LIBDIR}/PDcontroller${CMAKE_SHARED_LIBRARY_SUFFIX}" DESTINATION "${CHOREONOID_PLUGIN_DIR}/rtc/")
 endif()
