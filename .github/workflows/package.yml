@@ -124,6 +124,9 @@ jobs:
         arch: [i386, amd64]
     runs-on: ubuntu-18.04
     steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
     - name: Set upload parameters
       run: |
         if [ "${{ github.event.action }}" == "package-master" ]
@@ -168,6 +171,9 @@ jobs:
     needs: upload-packages
     runs-on: ubuntu-18.04
     steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
     - name: Set repository parameters
       run: |
         if [ "${{ github.event.action }}" == "package-master" ]
