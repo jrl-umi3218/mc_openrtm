@@ -163,11 +163,6 @@ protected:
   // <rtc-template block="consumer_declare">
 
   // </rtc-template>
-private:
-  /* For each gripper, store the joints to report as the actual gripper values */
-  std::map<std::string, std::vector<size_t>> gripper_in_index;
-  std::map<std::string, std::vector<double>> realGripperQs;
-  std::map<std::string, std::vector<std::pair<size_t, size_t>>> gripper_out_index;
 
 public:
   bool init;
