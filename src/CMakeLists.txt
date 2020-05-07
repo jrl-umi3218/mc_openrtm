@@ -31,7 +31,7 @@ add_executable(MCControlComp MCControlComp.cpp)
 target_link_libraries(MCControlComp PUBLIC MCControl)
 
 install(TARGETS MCControl MCControlComp
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION "${HRPSYS_BASE_PREFIX}/bin"
+  LIBRARY DESTINATION "${HRPSYS_BASE_PREFIX}/lib"
+  ARCHIVE DESTINATION "${HRPSYS_BASE_PREFIX}/lib"
 )

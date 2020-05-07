@@ -31,13 +31,13 @@ CORBA::Boolean MCControlServiceSVC_impl::EnableController(const char * name)
 
 CORBA::Boolean MCControlServiceSVC_impl::open_grippers()
 {
-  m_plugin->controller.setGripperOpenPercent(1);
+  m_plugin->controller.setGripperOpenPercent(m_plugin->controller.robot().name(), 1);
   return true;
 }
 
 CORBA::Boolean MCControlServiceSVC_impl::close_grippers()
 {
-  m_plugin->controller.setGripperOpenPercent(0);
+  m_plugin->controller.setGripperOpenPercent(m_plugin->controller.robot().name(), 0);
   return true;
 }
 
@@ -48,7 +48,7 @@ CORBA::Boolean MCControlServiceSVC_impl::set_gripper(const char * gripper, const
   {
     q.push_back(v[i]);
   }
-  m_plugin->controller.setGripperTargetQ(gripper, q);
+  m_plugin->controller.setGripperTargetQ(m_plugin->controller.robot().name(), gripper, q);
   return true;
 }
 

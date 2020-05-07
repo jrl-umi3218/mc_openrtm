@@ -58,7 +58,7 @@ namespace
   {
     if(mc_rtc::MC_RTC_VERSION != mc_rtc::version())
     {
-      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues and should recompile mc_openrtm")
+      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues or unexpected crashes, please recompile mc_openrtm")
     }
     return false;
   }
@@ -145,41 +145,6 @@ RTC::ReturnCode_t MCControl::onInitialize()
   // Bind variables and configuration variable
   bindParameter("timeStep", m_timeStep, "0.002");
   bindParameter("is_enabled", controller.running, "0");
-
-  auto gripperJs = controller.gripperJoints();
-  auto gripperActiveJs = controller.gripperActiveJoints();
-  const auto & ref_joint_order = controller.ref_joint_order();
-  for(const auto & g : gripperActiveJs)
-  {
-    gripper_in_index[g.first] = {};
-    realGripperQs[g.first] = {};
-    for(const auto & jn : g.second)
-    {
-      for(size_t i = 0; i < ref_joint_order.size(); ++i)
-      {
-        if(ref_joint_order[i] == jn)
-        {
-          gripper_in_index[g.first].push_back(i);
-          realGripperQs[g.first].push_back(0.0);
-        }
-      }
-    }
-  }
-  for(const auto & g : gripperJs)
-  {
-    gripper_out_index[g.first] = {};
-    for(size_t j = 0; j < g.second.size(); ++j)
-    {
-      const auto & jn = g.second[j];
-      for(size_t i = 0; i < ref_joint_order.size(); ++i)
-      {
-        if(ref_joint_order[i] == jn)
-        {
-          gripper_out_index[g.first].push_back({i, j});
-        }
-      }
-    }
-  }
 
   // </rtc-template>
   LOG_INFO("MCControl::onInitialize() finished")
@@ -315,19 +280,8 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       if(controller.run())
       {
         const mc_solver::QPResultMsg & res = controller.send(t);
-        auto gripperQs = controller.gripperQ();
-        const auto & ref_joint_order = controller.ref_joint_order();
-        for(auto & rG : realGripperQs)
-        {
-          const auto & idx = gripper_in_index[rG.first];
-          auto & qs = rG.second;
-          for(size_t i = 0; i < idx.size(); ++i)
-          {
-            qs[i] = m_qIn.data[idx[i]];
-          }
-        }
-        controller.setActualGripperQ(realGripperQs);
         m_qOut.data.length(m_qIn.data.length());
+        const auto & ref_joint_order = controller.robot().refJointOrder();
         for(unsigned int i = 0; i < ref_joint_order.size(); ++i)
         {
           if(res.robots_state[0].q.count(ref_joint_order[i]))
@@ -337,15 +291,6 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
           else
           {
             m_qOut.data[i] = m_qIn.data[i];
-          }
-        }
-        /* Update gripper state */
-        for(const auto & cG : gripper_out_index)
-        {
-          const auto & qs = gripperQs[cG.first];
-          for(const auto & idx_p : cG.second)
-          {
-            m_qOut.data[idx_p.first] = qs[idx_p.second];
           }
         }
         /* FIXME Correction RPY convention here? */
@@ -391,32 +336,6 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         if(robot.hasJoint(jN))
         {
           q[robot.jointIndexByName(jN)] = {initq[i]};
-        }
-      }
-      if(qInit.size() > 0)
-      {
-        auto gripperQs = controller.gripperQ();
-        auto gripperJs = controller.gripperActiveJoints();
-        std::map<std::string, std::vector<double>> realGripperQs;
-        for(const auto & g : gripperJs)
-        {
-          realGripperQs[g.first] = {};
-          for(const auto & jn : g.second)
-          {
-            for(size_t i = 0; i < ref_joint_order.size(); ++i)
-            {
-              if(ref_joint_order[i] == jn && qInit.size() > i)
-              {
-                realGripperQs[g.first].push_back(qInit[i]);
-                break;
-              }
-            }
-          }
-        }
-        controller.setGripperCurrentQ(realGripperQs);
-        for(const auto & gn : realGripperQs)
-        {
-          controller.setGripperTargetQ(gn.first, gn.second);
         }
       }
       robot.mbc().q = q;
