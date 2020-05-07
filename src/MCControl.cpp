@@ -58,7 +58,7 @@ namespace
   {
     if(mc_rtc::MC_RTC_VERSION != mc_rtc::version())
     {
-      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues and should recompile mc_openrtm")
+      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues or unexpected crashes, please recompile mc_openrtm")
     }
     return false;
   }
