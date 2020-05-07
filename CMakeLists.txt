@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.1)
 set(PROJECT_NAME mc_openrtm)
 set(PROJECT_DESCRIPTION mc_openrtm)
 set(PROJECT_VERSION 1.0.1)
-set(PROJECT_URL https://gite.lirmm.fr/multi-contact/mc_openrtm)
+set(PROJECT_URL https://github.com/jrl-umi3218/mc_openrtm)
 set(PROJECT_DEBUG_POSTFIX "_d")
 set(PROJECT_USE_KEYWORD_LINK_LIBRARIES True)
 
@@ -26,7 +26,7 @@ include(cmake/pkg-config.cmake)
 project(${PROJECT_NAME} CXX)
 
 # Dependencies
-find_package(mc_rtc REQUIRED)
+find_package(mc_rtc 1.3.0 REQUIRED)
 add_required_dependency(hrpsys-base)
 
 omniidl_include_directories("idl")
