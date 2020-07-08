@@ -136,10 +136,10 @@ def connectMCControl():
     connectPorts(rh.port("lhsensor"), mc.port("LeftHandForceSensor"))
     connectPorts(sh.port("basePosOut"), mc.port("pIn"))
     connectPorts(kf.port("rpy"), mc.port("rpyIn"))
+    connectPorts(mc.port("qOut"), sh.port("qIn"))
     connectPorts(rh.port("waistAbsTransform"), mc.port("basePoseIn"))
     connectPorts(rh.port("waistAbsVelocity"), mc.port("baseVelIn"))
     connectPorts(rh.port("waistAbsAcceleration"), mc.port("baseAccIn"))
-    connectPorts(mc.port("qOut"), sh.port("qIn"))
 
 
 init()

@@ -5,6 +5,7 @@ set(CONFIG_FILES
   RobotHardware.in.conf
   rtc.in.conf.choreonoid
   sim_mc.in.cnoid
+  sim_mc_wall.in.cnoid
 )
 
 foreach(CFG ${CONFIG_FILES})
