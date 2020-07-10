@@ -113,14 +113,14 @@ protected:
   InPort<TimedOrientation3D> m_rpyInIn;
   TimedAngularVelocity3D m_rateIn;
   InPort<TimedAngularVelocity3D> m_rateInIn;
-  Eigen::Vector3d rateIn;
+  Eigen::Vector3d rateIn = Eigen::Vector3d::Zero();
   TimedAcceleration3D m_accIn;
   InPort<TimedAcceleration3D> m_accInIn;
-  Eigen::Vector3d accIn;
+  Eigen::Vector3d accIn = Eigen::Vector3d::Zero();
   TimedPose3D m_poseIn;
   InPort<TimedPose3D> m_poseInIn;
-  Eigen::Vector3d rpyIn;
-  Eigen::Vector3d pIn;
+  Eigen::Vector3d rpyIn = Eigen::Vector3d::Zero();
+  Eigen::Vector3d pIn = Eigen::Vector3d::Zero();
   /* Velocity of the free flyer, given by simulator */
   InPort<TimedDoubleSeq> m_velInIn;
   TimedDoubleSeq m_velIn;
@@ -136,10 +136,10 @@ protected:
   RTC::TimedPose3D m_basePoseIn;
   RTC::TimedDoubleSeq m_baseVelIn;
   RTC::TimedDoubleSeq m_baseAccIn;
-  Eigen::Vector3d floatingBasePosIn;
-  Eigen::Vector3d floatingBaseRPYIn;
-  sva::MotionVecd floatingBaseVelIn;
-  sva::MotionVecd floatingBaseAccIn;
+  Eigen::Vector3d floatingBasePosIn = Eigen::Vector3d::Zero();
+  Eigen::Vector3d floatingBaseRPYIn = Eigen::Vector3d::Zero();
+  sva::MotionVecd floatingBaseVelIn = sva::MotionVecd::Zero();
+  sva::MotionVecd floatingBaseAccIn = sva::MotionVecd::Zero();
 
   std::vector<std::string> m_wrenchesNames;
   std::vector<TimedDoubleSeq *> m_wrenchesIn;
