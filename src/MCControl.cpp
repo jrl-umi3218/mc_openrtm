@@ -58,7 +58,7 @@ namespace
   {
     if(mc_rtc::MC_RTC_VERSION != mc_rtc::version())
     {
-      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues or unexpected crashes, please recompile mc_openrtm")
+      mc_rtc::log::error("MCControl was compiled with {}  but mc_rtc is at version {}, you might face subtle issues or unexpected crashes, please recompile mc_openrtm", mc_rtc::MC_RTC_VERSION, mc_rtc::version());
     }
     return false;
   }
@@ -111,7 +111,7 @@ MCControl::~MCControl() {}
 
 RTC::ReturnCode_t MCControl::onInitialize()
 {
-  LOG_INFO("MCControl::onInitialize() starting")
+  mc_rtc::log::info("MCControl::onInitialize() starting");
   // Registration: InPort/OutPort/Service
   // <rtc-template block="registration">
   // Set InPort buffers
@@ -156,19 +156,19 @@ RTC::ReturnCode_t MCControl::onInitialize()
   bindParameter("is_enabled", controller.running, "0");
 
   // </rtc-template>
-  LOG_INFO("MCControl::onInitialize() finished")
+  mc_rtc::log::info("MCControl::onInitialize() finished");
   return RTC::RTC_OK;
 }
 
 RTC::ReturnCode_t MCControl::onActivated(RTC::UniqueId ec_id)
 {
-  LOG_INFO("onActivated")
+  mc_rtc::log::info("onActivated");
   return RTC::RTC_OK;
 }
 
 RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
 {
-  LOG_INFO("onDeactivated")
+  mc_rtc::log::info("onDeactivated");
   return RTC::RTC_OK;
 }
 
@@ -320,7 +320,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       double t = tm.sec * 1e9 + tm.nsec;
       if(!init)
       {
-        LOG_INFO("Init controller")
+        mc_rtc::log::info("Init controller");
         auto q = Eigen::Quaterniond(mc_rbdyn::rpyToMat(rpyIn)).normalized();
         controller.init(qIn, std::array<double, 7>{{q.w(), q.x(), q.y(), q.z(), pIn.x(), pIn.y(), pIn.z()}});
         init = true;
