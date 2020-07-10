@@ -129,6 +129,18 @@ protected:
   InPort<TimedDoubleSeq> m_taucInIn;
   std::vector<double> taucIn;
 
+  // Floating base input (e.g simulation groundtruth)
+  RTC::InPort<RTC::TimedPose3D> m_basePoseInIn;
+  RTC::InPort<RTC::TimedDoubleSeq> m_baseVelInIn;
+  RTC::InPort<RTC::TimedDoubleSeq> m_baseAccInIn;
+  RTC::TimedPose3D m_basePoseIn;
+  RTC::TimedDoubleSeq m_baseVelIn;
+  RTC::TimedDoubleSeq m_baseAccIn;
+  Eigen::Vector3d floatingBasePosIn;
+  Eigen::Vector3d floatingBaseRPYIn;
+  sva::MotionVecd floatingBaseVelIn;
+  sva::MotionVecd floatingBaseAccIn;
+
   std::vector<std::string> m_wrenchesNames;
   std::vector<TimedDoubleSeq *> m_wrenchesIn;
   std::vector<InPort<TimedDoubleSeq> *> m_wrenchesInIn;

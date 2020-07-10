@@ -78,6 +78,9 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_basePoseInIn("basePoseIn", m_basePoseIn),
+    m_baseVelInIn("baseVelIn", m_baseVelIn),
+    m_baseAccInIn("baseAccIn", m_baseAccIn),
     m_wrenchesNames(),
     m_qOutOut("qOut", m_qOut),
     m_pOutOut("pOut", m_pOut),
@@ -121,6 +124,12 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  // Floating base
+  addInPort("basePoseIn", m_basePoseInIn);
+  addInPort("baseVelIn", m_baseVelInIn);
+  addInPort("baseAccIn", m_baseAccInIn);
+
+  // Force sensors
   for(size_t i = 0; i < m_wrenchesNames.size(); ++i)
   {
     addInPort(m_wrenchesNames[i].c_str(), *(m_wrenchesInIn[i]));
@@ -229,6 +238,36 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     accIn(1) = m_accIn.data.ay;
     accIn(2) = m_accIn.data.az;
   }
+  if(m_basePoseInIn.isNew())
+  {
+    m_basePoseInIn.read();
+    floatingBasePosIn.x() = m_basePoseIn.data.position.x;
+    floatingBasePosIn.y() = m_basePoseIn.data.position.y;
+    floatingBasePosIn.z() = m_basePoseIn.data.position.z;
+    floatingBaseRPYIn.x() = m_basePoseIn.data.orientation.r;
+    floatingBaseRPYIn.y() = m_basePoseIn.data.orientation.p;
+    floatingBaseRPYIn.z() = m_basePoseIn.data.orientation.y;
+  }
+  if(m_baseVelInIn.isNew())
+  {
+    m_baseVelInIn.read();
+    floatingBaseVelIn.angular().x() = m_baseVelIn.data[3];
+    floatingBaseVelIn.angular().y() = m_baseVelIn.data[4];
+    floatingBaseVelIn.angular().z() = m_baseVelIn.data[5];
+    floatingBaseVelIn.linear().x() = m_baseVelIn.data[0];
+    floatingBaseVelIn.linear().y() = m_baseVelIn.data[1];
+    floatingBaseVelIn.linear().z() = m_baseVelIn.data[2];
+  }
+  if(m_baseAccInIn.isNew())
+  {
+    m_baseAccInIn.read();
+    floatingBaseAccIn.angular().x() = m_baseAccIn.data[3];
+    floatingBaseAccIn.angular().y() = m_baseAccIn.data[4];
+    floatingBaseAccIn.angular().z() = m_baseAccIn.data[5];
+    floatingBaseAccIn.linear().x() = m_baseAccIn.data[0];
+    floatingBaseAccIn.linear().y() = m_baseAccIn.data[1];
+    floatingBaseAccIn.linear().z() = m_baseAccIn.data[2];
+  }
   if(m_taucInIn.isNew())
   {
     m_taucInIn.read();
@@ -267,6 +306,15 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setEncoderValues(qIn);
     controller.setWrenches(m_wrenches);
     controller.setJointTorques(taucIn);
+
+    // Floating base sensor
+    controller.setSensorPositions(controller.robot(), {{"FloatingBase", floatingBasePosIn}});
+    controller.setSensorOrientations(controller.robot(),
+                                     {{"FloatingBase", Eigen::Quaterniond(mc_rbdyn::rpyToMat(floatingBaseRPYIn))}});
+    controller.setSensorAngularVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.angular()}});
+    controller.setSensorLinearVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.linear()}});
+    controller.setSensorAccelerations(controller.robot(), {{"FloatingBase", floatingBaseAccIn.linear()}});
+
     if(controller.running)
     {
       double t = tm.sec * 1e9 + tm.nsec;
