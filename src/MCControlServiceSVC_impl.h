@@ -18,7 +18,7 @@ public:
   MCControlServiceSVC_impl(MCControl * plugin);
   virtual ~MCControlServiceSVC_impl();
 
-  virtual CORBA::Boolean EnableController(const char * name);
+  virtual CORBA::Boolean EnableController(const char * name) override;
 
   /* Grippers (always available) */
   virtual CORBA::Boolean open_grippers() override;

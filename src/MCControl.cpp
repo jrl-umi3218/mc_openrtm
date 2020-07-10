@@ -58,7 +58,7 @@ namespace
   {
     if(mc_rtc::MC_RTC_VERSION != mc_rtc::version())
     {
-      LOG_ERROR("MCControl was compiled with " << mc_rtc::MC_RTC_VERSION << " but mc_rtc is at version " << mc_rtc::version() << ", you might face subtle issues or unexpected crashes, please recompile mc_openrtm")
+      mc_rtc::log::error("MCControl was compiled with {}  but mc_rtc is at version {}, you might face subtle issues or unexpected crashes, please recompile mc_openrtm", mc_rtc::MC_RTC_VERSION, mc_rtc::version());
     }
     return false;
   }
@@ -78,6 +78,9 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_basePoseInIn("basePoseIn", m_basePoseIn),
+    m_baseVelInIn("baseVelIn", m_baseVelIn),
+    m_baseAccInIn("baseAccIn", m_baseAccIn),
     m_wrenchesNames(),
     m_qOutOut("qOut", m_qOut),
     m_pOutOut("pOut", m_pOut),
@@ -108,7 +111,7 @@ MCControl::~MCControl() {}
 
 RTC::ReturnCode_t MCControl::onInitialize()
 {
-  LOG_INFO("MCControl::onInitialize() starting")
+  mc_rtc::log::info("MCControl::onInitialize() starting");
   // Registration: InPort/OutPort/Service
   // <rtc-template block="registration">
   // Set InPort buffers
@@ -121,6 +124,12 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  // Floating base
+  addInPort("basePoseIn", m_basePoseInIn);
+  addInPort("baseVelIn", m_baseVelInIn);
+  addInPort("baseAccIn", m_baseAccInIn);
+
+  // Force sensors
   for(size_t i = 0; i < m_wrenchesNames.size(); ++i)
   {
     addInPort(m_wrenchesNames[i].c_str(), *(m_wrenchesInIn[i]));
@@ -147,19 +156,19 @@ RTC::ReturnCode_t MCControl::onInitialize()
   bindParameter("is_enabled", controller.running, "0");
 
   // </rtc-template>
-  LOG_INFO("MCControl::onInitialize() finished")
+  mc_rtc::log::info("MCControl::onInitialize() finished");
   return RTC::RTC_OK;
 }
 
 RTC::ReturnCode_t MCControl::onActivated(RTC::UniqueId ec_id)
 {
-  LOG_INFO("onActivated")
+  mc_rtc::log::info("onActivated");
   return RTC::RTC_OK;
 }
 
 RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
 {
-  LOG_INFO("onDeactivated")
+  mc_rtc::log::info("onDeactivated");
   return RTC::RTC_OK;
 }
 
@@ -229,6 +238,36 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     accIn(1) = m_accIn.data.ay;
     accIn(2) = m_accIn.data.az;
   }
+  if(m_basePoseInIn.isNew())
+  {
+    m_basePoseInIn.read();
+    floatingBasePosIn.x() = m_basePoseIn.data.position.x;
+    floatingBasePosIn.y() = m_basePoseIn.data.position.y;
+    floatingBasePosIn.z() = m_basePoseIn.data.position.z;
+    floatingBaseRPYIn.x() = m_basePoseIn.data.orientation.r;
+    floatingBaseRPYIn.y() = m_basePoseIn.data.orientation.p;
+    floatingBaseRPYIn.z() = m_basePoseIn.data.orientation.y;
+  }
+  if(m_baseVelInIn.isNew())
+  {
+    m_baseVelInIn.read();
+    floatingBaseVelIn.angular().x() = m_baseVelIn.data[3];
+    floatingBaseVelIn.angular().y() = m_baseVelIn.data[4];
+    floatingBaseVelIn.angular().z() = m_baseVelIn.data[5];
+    floatingBaseVelIn.linear().x() = m_baseVelIn.data[0];
+    floatingBaseVelIn.linear().y() = m_baseVelIn.data[1];
+    floatingBaseVelIn.linear().z() = m_baseVelIn.data[2];
+  }
+  if(m_baseAccInIn.isNew())
+  {
+    m_baseAccInIn.read();
+    floatingBaseAccIn.angular().x() = m_baseAccIn.data[3];
+    floatingBaseAccIn.angular().y() = m_baseAccIn.data[4];
+    floatingBaseAccIn.angular().z() = m_baseAccIn.data[5];
+    floatingBaseAccIn.linear().x() = m_baseAccIn.data[0];
+    floatingBaseAccIn.linear().y() = m_baseAccIn.data[1];
+    floatingBaseAccIn.linear().z() = m_baseAccIn.data[2];
+  }
   if(m_taucInIn.isNew())
   {
     m_taucInIn.read();
@@ -267,12 +306,21 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setEncoderValues(qIn);
     controller.setWrenches(m_wrenches);
     controller.setJointTorques(taucIn);
+
+    // Floating base sensor
+    controller.setSensorPositions(controller.robot(), {{"FloatingBase", floatingBasePosIn}});
+    controller.setSensorOrientations(controller.robot(),
+                                     {{"FloatingBase", Eigen::Quaterniond(mc_rbdyn::rpyToMat(floatingBaseRPYIn))}});
+    controller.setSensorAngularVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.angular()}});
+    controller.setSensorLinearVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.linear()}});
+    controller.setSensorAccelerations(controller.robot(), {{"FloatingBase", floatingBaseAccIn.linear()}});
+
     if(controller.running)
     {
       double t = tm.sec * 1e9 + tm.nsec;
       if(!init)
       {
-        LOG_INFO("Init controller")
+        mc_rtc::log::info("Init controller");
         auto q = Eigen::Quaterniond(mc_rbdyn::rpyToMat(rpyIn)).normalized();
         controller.init(qIn, std::array<double, 7>{{q.w(), q.x(), q.y(), q.z(), pIn.x(), pIn.y(), pIn.z()}});
         init = true;
