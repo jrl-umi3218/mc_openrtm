@@ -11,6 +11,9 @@
 #ifndef MCCONTROL_H
 #define MCCONTROL_H
 
+// clang-format off
+// Disable clang-format to protect the inclusion order
+// These two headers must come first
 #include <rtm/idl/BasicDataTypeSkel.h>
 #include <rtm/idl/ExtendedDataTypesSkel.h>
 
@@ -19,6 +22,7 @@
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
 #include <rtm/Manager.h>
+// clang-format on
 
 // Service implementation headers
 // <rtc-template block="service_impl_h">
