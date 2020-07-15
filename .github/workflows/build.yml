@@ -33,7 +33,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-16.04, ubuntu-18.04]
-        compiler: [gcc]
+        compiler: [gcc, clang]
+        build-type: [Release, RelWithDebInfo]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v1
@@ -56,15 +57,15 @@ jobs:
     - name: Install dependencies
       uses: jrl-umi3218/github-actions/install-dependencies@master
       with:
-        compiler: gcc
-        build-type: RelWithDebInfo
+        compiler: ${{matrix.compiler}}
+        build-type: ${{ matrix.build-type }}
         ubuntu: |
           apt: hrpsys-base choreonoid libcnoid-dev libmc-rtc-dev
     - name: Build and test
       uses: jrl-umi3218/github-actions/build-cmake-project@master
       with:
-        compiler: gcc
-        build-type: RelWithDebInfo
+        compiler: ${{ matrix.compiler }}
+        build-type: ${{ matrix.build-type }}
     - name: Slack Notification
       if: failure()
       uses: archive/github-actions-slack@master
