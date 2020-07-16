@@ -8,12 +8,21 @@ set(CONFIG_FILES
   sim_mc_wall.in.cnoid
 )
 
+# Generate floating cnoid files for floating base model
+set(JVRC1_MODEL_NAME "main")
 foreach(CFG ${CONFIG_FILES})
   string(REPLACE ".in" "" CFG_OUT "${CFG}")
   configure_file(${CFG} ${CMAKE_CURRENT_BINARY_DIR}/${CFG_OUT} @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CFG_OUT}
     DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/JVRC1")
 endforeach()
+
+# Generate cnoid files for fixed-based model 
+set(JVRC1_MODEL_NAME "main_fixed")
+configure_file(sim_mc_fixed.in.cnoid ${CMAKE_CURRENT_BINARY_DIR}/sim_mc_fixed.cnoid @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sim_mc_fixed.cnoid 
+  DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/JVRC1"
+)
 
 install(FILES
   PDgains_sim.dat

@@ -3,6 +3,6 @@ exec_cxt.periodic.rate: 1000000
 nStep: 5
 dt: 0.001
 ref_dt: 0.005
-model: file:///@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/robot/JVRC1/main.wrl
+model: file:///@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/robot/JVRC1/@JVRC1_MODEL_NAME@.wrl
 pdgains_sim_file_name: PDgains_sim.dat
 pdcontrol_tlimit_ratio: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1

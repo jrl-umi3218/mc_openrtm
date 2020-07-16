@@ -27,7 +27,7 @@ nshost = "localhost"
 
 modelName = 'JVRC1'
 url = 'file://' + \
-    '@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/robot/JVRC1/main.wrl'
+    '@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/robot/JVRC1/@JVRC1_MODEL_NAME@.wrl'
 
 # pose parameters
 timeToHalfsitPose = 3.0  # [sec]

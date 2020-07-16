@@ -1,3 +1,9 @@
+set(BASE_JOINT_TYPE "free")
+configure_file(JVRC1/main.in.wrl ${CMAKE_CURRENT_BINARY_DIR}/JVRC1/main.wrl)
+
+set(BASE_JOINT_TYPE "fixed")
+configure_file(JVRC1/main.in.wrl ${CMAKE_CURRENT_BINARY_DIR}/JVRC1/main_fixed.wrl)
+
 install(FILES
     JVRC1/Map01_siri.jpg
     JVRC1/Map03_douF.jpg
@@ -34,7 +40,8 @@ install(FILES
     JVRC1/lulittle.wrl
     JVRC1/luthumb.wrl
     JVRC1/lwrist.wrl
-    JVRC1/main.wrl
+    ${CMAKE_CURRENT_BINARY_DIR}/JVRC1/main.wrl
+    ${CMAKE_CURRENT_BINARY_DIR}/JVRC1/main_fixed.wrl
     JVRC1/neck.wrl
     JVRC1/pelvis.wrl
     JVRC1/rankle.wrl

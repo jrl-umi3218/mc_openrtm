@@ -228,7 +228,7 @@ Viewpoint {
 DEF JVRC-1 Humanoid {
   humanoidBody [
     DEF PELVIS Joint {
-      jointType "free"
+      jointType "@BASE_JOINT_TYPE@"
       translation 0 0 0.854
       children [
         DEF PELVIS_S Segment {

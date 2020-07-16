@@ -86,29 +86,6 @@ items:
                     visualRatio: 0.002
         - 
           id: 6
-          name: "longfloor"
-          plugin: Body
-          class: BodyItem
-          data: 
-            modelFile: "@OPENHRP3_1_PREFIX@/share/OpenHRP-3.1/sample/model/longfloor.wrl"
-            currentBaseLink: "WAIST"
-            rootPosition: [ 0, 0, -0.1 ]
-            rootAttitude: [ 
-              1, 0, 0, 
-              0, 1, 0, 
-              0, 0, 1 ]
-            jointPositions: [  ]
-            initialRootPosition: [ 0, 0, -0.1 ]
-            initialRootAttitude: [ 
-              1, 0, 0, 
-              0, 1, 0, 
-              0, 0, 1 ]
-            zmp: [ 0, 0, 0 ]
-            collisionDetection: true
-            selfCollisionDetection: false
-            isEditable: true
-        - 
-          id: 7
           name: "AISTSimulator"
           plugin: Body
           class: AISTSimulatorItem
@@ -137,7 +114,7 @@ items:
             2Dmode: false
             oldAccelSensorMode: false
         - 
-          id: 8
+          id: 7
           name: "sim_mc.py"
           plugin: PythonSimScript
           class: PythonSimScriptItem
@@ -157,9 +134,9 @@ views:
     plugin: Base
     class: ItemTreeView
     state: 
-      selected: [ [ 5, "ForceSensor" ], 7 ]
-      checked: [ 3, 4, [ 5, "ForceSensor" ], 6, 8 ]
-      expanded: [ 2, 3, 4, 5, 7 ]
+      selected: [ [ 5, "ForceSensor" ], 6 ]
+      checked: [ 3, 4, [ 5, "ForceSensor" ], 7 ]
+      expanded: [ 2, 3, 4, 5, 6 ]
   - 
     id: 2
     plugin: Base
