@@ -321,8 +321,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       if(!init)
       {
         mc_rtc::log::info("Init controller");
-        auto q = Eigen::Quaterniond(mc_rbdyn::rpyToMat(rpyIn)).normalized();
-        controller.init(qIn, std::array<double, 7>{{q.w(), q.x(), q.y(), q.z(), pIn.x(), pIn.y(), pIn.z()}});
+        controller.init(qIn);
         init = true;
       }
       if(controller.run())
