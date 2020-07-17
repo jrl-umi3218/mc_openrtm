@@ -251,22 +251,28 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
   if(m_baseVelInIn.isNew())
   {
     m_baseVelInIn.read();
-    floatingBaseVelIn.angular().x() = m_baseVelIn.data[3];
-    floatingBaseVelIn.angular().y() = m_baseVelIn.data[4];
-    floatingBaseVelIn.angular().z() = m_baseVelIn.data[5];
-    floatingBaseVelIn.linear().x() = m_baseVelIn.data[0];
-    floatingBaseVelIn.linear().y() = m_baseVelIn.data[1];
-    floatingBaseVelIn.linear().z() = m_baseVelIn.data[2];
+    if(m_baseVelIn.data.length() == 6)
+    {
+      floatingBaseVelIn.angular().x() = m_baseVelIn.data[3];
+      floatingBaseVelIn.angular().y() = m_baseVelIn.data[4];
+      floatingBaseVelIn.angular().z() = m_baseVelIn.data[5];
+      floatingBaseVelIn.linear().x() = m_baseVelIn.data[0];
+      floatingBaseVelIn.linear().y() = m_baseVelIn.data[1];
+      floatingBaseVelIn.linear().z() = m_baseVelIn.data[2];
+    }
   }
   if(m_baseAccInIn.isNew())
   {
     m_baseAccInIn.read();
-    floatingBaseAccIn.angular().x() = m_baseAccIn.data[3];
-    floatingBaseAccIn.angular().y() = m_baseAccIn.data[4];
-    floatingBaseAccIn.angular().z() = m_baseAccIn.data[5];
-    floatingBaseAccIn.linear().x() = m_baseAccIn.data[0];
-    floatingBaseAccIn.linear().y() = m_baseAccIn.data[1];
-    floatingBaseAccIn.linear().z() = m_baseAccIn.data[2];
+    if(m_baseAccIn.data.length() == 6)
+    {
+      floatingBaseAccIn.angular().x() = m_baseAccIn.data[3];
+      floatingBaseAccIn.angular().y() = m_baseAccIn.data[4];
+      floatingBaseAccIn.angular().z() = m_baseAccIn.data[5];
+      floatingBaseAccIn.linear().x() = m_baseAccIn.data[0];
+      floatingBaseAccIn.linear().y() = m_baseAccIn.data[1];
+      floatingBaseAccIn.linear().z() = m_baseAccIn.data[2];
+    }
   }
   if(m_taucInIn.isNew())
   {
