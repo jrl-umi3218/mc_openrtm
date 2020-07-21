@@ -314,12 +314,15 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setJointTorques(taucIn);
 
     // Floating base sensor
-    controller.setSensorPositions(controller.robot(), {{"FloatingBase", floatingBasePosIn}});
-    controller.setSensorOrientations(controller.robot(),
-                                     {{"FloatingBase", Eigen::Quaterniond(mc_rbdyn::rpyToMat(floatingBaseRPYIn))}});
-    controller.setSensorAngularVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.angular()}});
-    controller.setSensorLinearVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.linear()}});
-    controller.setSensorAccelerations(controller.robot(), {{"FloatingBase", floatingBaseAccIn.linear()}});
+    if(controller.robot().hasBodySensor("FloatingBase"))
+    {
+      controller.setSensorPositions(controller.robot(), {{"FloatingBase", floatingBasePosIn}});
+      controller.setSensorOrientations(controller.robot(),
+                                       {{"FloatingBase", Eigen::Quaterniond(mc_rbdyn::rpyToMat(floatingBaseRPYIn))}});
+      controller.setSensorAngularVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.angular()}});
+      controller.setSensorLinearVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.linear()}});
+      controller.setSensorAccelerations(controller.robot(), {{"FloatingBase", floatingBaseAccIn.linear()}});
+    }
 
     if(controller.running)
     {
