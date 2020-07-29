@@ -70,6 +70,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_timeStep(0.002),
     m_enabled(false),
     m_qInIn("qIn", m_qIn),
+    m_alphaInIn("alphaIn", m_alphaIn),
     m_qInitIn("qInit", m_qInit),
     m_pInIn("pIn", m_pIn),
     m_rpyInIn("rpyIn", m_rpyIn),
@@ -116,6 +117,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
   // <rtc-template block="registration">
   // Set InPort buffers
   addInPort("qIn", m_qInIn);
+  addInPort("alphaIn", m_alphaInIn);
   addInPort("qInit", m_qInitIn);
   addInPort("pIn", m_pInIn);
   addInPort("rpyIn", m_rpyInIn);
@@ -292,6 +294,15 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       qInit[i] = m_qInit.data[i];
     }
   }
+  if(m_alphaInIn.isNew())
+  {
+    m_alphaInIn.read();
+    alphaIn.resize(m_alphaIn.data.length());
+    for(unsigned int i = 0; i < alphaIn.size(); ++i)
+    {
+      alphaIn[i] = m_alphaIn.data[i];
+    }
+  }
   if(m_qInIn.isNew())
   {
     m_qInIn.read();
@@ -310,6 +321,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setSensorLinearVelocity(velIn.linear());
     controller.setSensorAcceleration(accIn);
     controller.setEncoderValues(qIn);
+    controller.setEncoderVelocities(alphaIn);
     controller.setWrenches(m_wrenches);
     controller.setJointTorques(taucIn);
 

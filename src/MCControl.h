@@ -108,6 +108,9 @@ protected:
   TimedDoubleSeq m_qIn;
   InPort<TimedDoubleSeq> m_qInIn;
   std::vector<double> qIn;
+  TimedDoubleSeq m_alphaIn;
+  InPort<TimedDoubleSeq> m_alphaInIn;
+  std::vector<double> alphaIn;
   TimedDoubleSeq m_qInit;
   InPort<TimedDoubleSeq> m_qInitIn;
   std::vector<double> qInit = {};
