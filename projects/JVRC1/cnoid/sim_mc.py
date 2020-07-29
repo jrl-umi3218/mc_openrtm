@@ -127,6 +127,7 @@ def startMCControl():
 
 def connectMCControl():
     connectPorts(rh.port("q"), mc.port("qIn"))
+    connectPorts(rh.port("dq"), mc.port("alphaIn"))
     connectPorts(rh.port("tauOut"), mc.port("taucIn"))
     connectPorts(rh.port("gyrometer"), mc.port("rateIn"))
     connectPorts(rh.port("gsensor"), mc.port("accIn"))
