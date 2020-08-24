@@ -22,6 +22,12 @@ $ choreonoid sim_mc.cnoid
 
 The control component is started automatically when you start the dynamic simulation.
 
+Other simulation files provided by default:
+- `sim_mc.cnoid`: JVRC1 robot on a flat floor.
+- `sim_mc_fixed.cnoid`: JVRC1 robot with a fixed base and no floor.
+- `sim_mc_wall.cnoid`: JVRC1 robot in front of a vertical wall. See [the admittance sample tutorial](https://jrl-umi3218.github.io/mc_rtc/tutorials/samples/sample-admittance.html) for example usage.
+- `sim_mc_comanoid_staircase.cnoid`: JVRC1 robot in front of a staircase with steps of (height 18.5cm, length: 24cm). See the [lipm_walking_controller](https://github.com/jrl-umi3218/lipm_walking_controller) for a stair climbing controller using this project.
+
 ## Making a new project
 
 There are two important components to include in your Choreonoid project:

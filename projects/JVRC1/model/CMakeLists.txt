@@ -65,4 +65,5 @@ install(FILES
 
 install(FILES
   environments/sim_mc_wall.wrl
+  environments/comanoid_airbus_staircase.wrl
   DESTINATION "${HRPSYS_BASE_PREFIX}/share/hrpsys/samples/environments")
