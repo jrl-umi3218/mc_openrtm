@@ -1,0 +1,306 @@
+# VRML V2.0 utf8
+
+PROTO Joint [
+  exposedField     SFVec3f      center              0 0 0
+  exposedField     MFNode       children            []
+  exposedField     MFFloat      llimit              []
+  exposedField     SFRotation   limitOrientation    0 0 1 0
+  exposedField     SFString     name                ""
+  exposedField     SFRotation   rotation            0 0 1 0
+  exposedField     SFVec3f      scale               1 1 1
+  exposedField     SFRotation   scaleOrientation    0 0 1 0
+  exposedField     MFFloat      stiffness           [ 0 0 0 ]
+  exposedField     SFVec3f      translation         0 0 0
+  exposedField     MFFloat      ulimit              []
+  exposedField     MFFloat      dh                  [0 0 0 0]
+  exposedField     SFString     jointType           ""
+  exposedField     SFInt32      jointId             -1
+  exposedField     SFVec3f     jointAxis           0 0 1
+]
+{
+  Transform {
+    center           IS center
+    children         IS children
+    rotation         IS rotation
+    scale            IS scale
+    scaleOrientation IS scaleOrientation
+    translation      IS translation
+  }
+}
+
+PROTO Segment [
+  field           SFVec3f     bboxCenter        0 0 0
+  field           SFVec3f     bboxSize          -1 -1 -1
+  exposedField    SFVec3f     centerOfMass      0 0 0
+  exposedField    MFNode      children          [ ]
+  exposedField    SFNode      coord             NULL
+  exposedField    MFNode      displacers        [ ]
+  exposedField    SFFloat     mass              0
+  exposedField    MFFloat     momentsOfInertia  [ 0 0 0 0 0 0 0 0 0 ]
+  exposedField    SFString    name              ""
+  eventIn         MFNode      addChildren
+  eventIn         MFNode      removeChildren
+]
+{
+  Group {
+    addChildren    IS addChildren
+    bboxCenter     IS bboxCenter
+    bboxSize       IS bboxSize
+    children       IS children
+    removeChildren IS removeChildren
+  }
+}
+
+PROTO Robot [
+  field           SFVec3f    bboxCenter            0 0 0
+  field           SFVec3f    bboxSize              -1 -1 -1
+  exposedField    SFVec3f    center                0 0 0
+  exposedField    MFNode     robotBody          [ ]
+  exposedField    MFString   info                  [ ]
+  exposedField    MFNode     joints                [ ]
+  exposedField    SFString   name                  ""
+  exposedField    SFRotation rotation              0 0 1 0
+  exposedField    SFVec3f    scale                 1 1 1
+  exposedField    SFRotation scaleOrientation      0 0 1 0
+  exposedField    MFNode     segments              [ ]
+  exposedField    MFNode     sites                 [ ]
+  exposedField    SFVec3f    translation           0 0 0
+  exposedField    SFString   version               "1.1"
+  exposedField    MFNode     viewpoints            [ ]
+]
+{
+  Transform {
+    bboxCenter       IS bboxCenter
+    bboxSize         IS bboxSize
+    center           IS center
+    rotation         IS rotation
+    scale            IS scale
+    scaleOrientation IS scaleOrientation
+    translation      IS translation
+    children [
+      Group {
+        children IS viewpoints
+      }
+      Group {
+        children IS robotBody
+      }
+    ]
+  }
+}
+
+DEF SNStaircase Robot {
+  robotBody [
+    DEF WAIST Joint {
+      jointType "fixed"
+      dh [0 0 0 0]
+      translation 0.000000 0.000000 0.000000
+      rotation 0.0 0.0 1.0 0
+      children [
+        DEF ROOT-LINK_S Segment {
+          centerOfMass 0.0 0.0 0.0
+          mass 0.001
+          momentsOfInertia [ 1.000000e-09 0.0 0.0 0.0 1.000000e-09 0.0 0.0 0.0 1.000000e-09 ]
+          children [
+            Shape {
+              appearance Appearance { material Material {} }
+              geometry DEF ROOT-LINK-FACES IndexedFaceSet {
+                creaseAngle 0.8
+                ccw TRUE
+                solid TRUE
+                colorPerVertex FALSE
+                color Color { color [0.700142 0.600171 0.450188] }
+                coord DEF ROOT-LINK-COORD Coordinate {
+                  point[
+                    0.240000 0.600000 0.000000,
+                    0.240000 0.600000 0.185000,
+                    0.240000 -0.600000 0.000000,
+                    0.240000 -0.600000 0.185000,
+                    0.000000 0.600000 0.000000,
+                    0.000000 -0.600000 0.000000,
+                    0.000000 -0.600000 0.18500,
+                    0.000000 0.600000 0.185000,
+                  ]
+                }
+                coordIndex [
+                  3, 1, 7, -1,
+                  7, 6, 3, -1,
+                  5, 4, 0, -1,
+                  0, 2, 5, -1,
+                  7, 1, 0, -1,
+                  0, 4, 7, -1,
+                  1, 3, 2, -1,
+                  2, 0, 1, -1,
+                  3, 6, 5, -1,
+                  5, 2, 3, -1,
+                  6, 7, 4, -1,
+                  4, 5, 6, -1,
+                ]
+                colorIndex [
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                ]
+              }
+            }
+            Shape {
+              appearance Appearance { material Material {} }
+              geometry DEF ROOT-LINK-FACES IndexedFaceSet {
+                creaseAngle 0.8
+                ccw TRUE
+                solid TRUE
+                colorPerVertex FALSE
+                color Color { color [0.700142 0.600171 0.450188] }
+                coord DEF ROOT-LINK-COORD Coordinate {
+                  point[
+                    0.480000 0.600000 0.000000,
+                    0.480000 0.600000 0.370000,
+                    0.480000 -0.600000 0.000000,
+                    0.480000 -0.600000 0.370000,
+                    0.240000 0.600000 0.000000,
+                    0.240000 -0.600000 0.000000,
+                    0.240000 -0.600000 0.370000,
+                    0.240000 0.600000 0.370000,
+                  ]
+                }
+                coordIndex [
+                  3, 1, 7, -1,
+                  7, 6, 3, -1,
+                  5, 4, 0, -1,
+                  0, 2, 5, -1,
+                  7, 1, 0, -1,
+                  0, 4, 7, -1,
+                  1, 3, 2, -1,
+                  2, 0, 1, -1,
+                  3, 6, 5, -1,
+                  5, 2, 3, -1,
+                  6, 7, 4, -1,
+                  4, 5, 6, -1,
+                ]
+                colorIndex [
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                ]
+              }
+            }
+            Shape {
+              appearance Appearance { material Material {} }
+              geometry DEF ROOT-LINK-FACES IndexedFaceSet {
+                creaseAngle 0.8
+                ccw TRUE
+                solid TRUE
+                colorPerVertex FALSE
+                color Color { color [0.700142 0.600171 0.450188] }
+                coord DEF ROOT-LINK-COORD Coordinate {
+                  point[
+                    0.720000 0.600000 0.000000,
+                    0.720000 0.600000 0.555000,
+                    0.720000 -0.600000 0.000000,
+                    0.720000 -0.600000 0.555000,
+                    0.480000 0.600000 0.000000,
+                    0.480000 -0.600000 0.000000,
+                    0.480000 -0.600000 0.555000,
+                    0.480000 0.600000 0.555000,
+                  ]
+                }
+                coordIndex [
+                  3, 1, 7, -1,
+                  7, 6, 3, -1,
+                  5, 4, 0, -1,
+                  0, 2, 5, -1,
+                  7, 1, 0, -1,
+                  0, 4, 7, -1,
+                  1, 3, 2, -1,
+                  2, 0, 1, -1,
+                  3, 6, 5, -1,
+                  5, 2, 3, -1,
+                  6, 7, 4, -1,
+                  4, 5, 6, -1,
+                ]
+                colorIndex [
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                ]
+              }
+            }
+            Shape {
+              appearance Appearance { material Material {} }
+              geometry DEF ROOT-LINK-FACES IndexedFaceSet {
+                creaseAngle 0.8
+                ccw TRUE
+                solid TRUE
+                colorPerVertex FALSE
+                color Color { color [0.700142 0.600171 0.450188] }
+                coord DEF ROOT-LINK-COORD Coordinate {
+                  point[
+                    0.960000 0.600000 0.000000,
+                    0.960000 0.600000 0.740000,
+                    0.960000 -0.600000 0.000000,
+                    0.960000 -0.600000 0.740000,
+                    0.720000 0.600000 0.000000,
+                    0.720000 -0.600000 0.000000,
+                    0.720000 -0.600000 0.740000,
+                    0.720000 0.600000 0.740000,
+                  ]
+                }
+                coordIndex [
+                  3, 1, 7, -1,
+                  7, 6, 3, -1,
+                  5, 4, 0, -1,
+                  0, 2, 5, -1,
+                  7, 1, 0, -1,
+                  0, 4, 7, -1,
+                  1, 3, 2, -1,
+                  2, 0, 1, -1,
+                  3, 6, 5, -1,
+                  5, 2, 3, -1,
+                  6, 7, 4, -1,
+                  4, 5, 6, -1,
+                ]
+                colorIndex [
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                ]
+              }
+            }
+            Shape {
+              appearance Appearance { material Material {} }
+              geometry DEF ROOT-LINK-FACES IndexedFaceSet {
+                creaseAngle 0.8
+                ccw TRUE
+                solid TRUE
+                colorPerVertex FALSE
+                color Color { color [0.700142 0.600171 0.450188] }
+                coord DEF ROOT-LINK-COORD Coordinate {
+                  point[
+                    1.76000 0.600000 0.000000,
+                    1.76000 0.600000 0.885000,
+                    1.76000 -0.600000 0.000000,
+                    1.76000 -0.600000 0.885000,
+                    0.96000 0.600000 0.000000,
+                    0.96000 -0.600000 0.000000,
+                    0.96000 -0.600000 0.885000,
+                    0.96000 0.600000 0.885000,
+                  ]
+                }
+                coordIndex [
+                  3, 1, 7, -1,
+                  7, 6, 3, -1,
+                  5, 4, 0, -1,
+                  0, 2, 5, -1,
+                  7, 1, 0, -1,
+                  0, 4, 7, -1,
+                  1, 3, 2, -1,
+                  2, 0, 1, -1,
+                  3, 6, 5, -1,
+                  5, 2, 3, -1,
+                  6, 7, 4, -1,
+                  4, 5, 6, -1,
+                ]
+                colorIndex [
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+                ]
+              }
+            }
+          ]
+        } # ROOT-LINK_S Segment
+      ] # children
+    } # WAIST Joint
+  ] # robotBody
+  joints [ USE WAIST ]
+  segments [ USE ROOT-LINK_S ]
+} # SNStaircase Robot

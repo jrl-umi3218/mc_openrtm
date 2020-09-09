@@ -6,6 +6,7 @@ set(CONFIG_FILES
   rtc.in.conf.choreonoid
   sim_mc.in.cnoid
   sim_mc_wall.in.cnoid
+  sim_mc_comanoid_staircase.in.cnoid
 )
 
 # Generate floating cnoid files for floating base model

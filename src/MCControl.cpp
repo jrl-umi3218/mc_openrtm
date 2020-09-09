@@ -319,7 +319,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setSensorPosition(pIn);
     controller.setSensorAngularVelocity(rateIn);
     controller.setSensorLinearVelocity(velIn.linear());
-    controller.setSensorAcceleration(accIn);
+    controller.setSensorLinearAcceleration(accIn);
     controller.setEncoderValues(qIn);
     controller.setEncoderVelocities(alphaIn);
     controller.setWrenches(m_wrenches);
@@ -328,12 +328,12 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     // Floating base sensor
     if(controller.robot().hasBodySensor("FloatingBase"))
     {
-      controller.setSensorPositions(controller.robot(), {{"FloatingBase", floatingBasePosIn}});
-      controller.setSensorOrientations(controller.robot(),
-                                       {{"FloatingBase", Eigen::Quaterniond(mc_rbdyn::rpyToMat(floatingBaseRPYIn))}});
-      controller.setSensorAngularVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.angular()}});
-      controller.setSensorLinearVelocities(controller.robot(), {{"FloatingBase", floatingBaseVelIn.linear()}});
-      controller.setSensorAccelerations(controller.robot(), {{"FloatingBase", floatingBaseAccIn.linear()}});
+      controller.setSensorPositions({{"FloatingBase", floatingBasePosIn}});
+      controller.setSensorOrientations({{"FloatingBase", Eigen::Quaterniond(mc_rbdyn::rpyToMat(floatingBaseRPYIn))}});
+      controller.setSensorAngularVelocities({{"FloatingBase", floatingBaseVelIn.angular()}});
+      controller.setSensorLinearVelocities({{"FloatingBase", floatingBaseVelIn.linear()}});
+      controller.setSensorAngularAccelerations({{"FloatingBase", floatingBaseAccIn.angular()}});
+      controller.setSensorLinearAccelerations({{"FloatingBase", floatingBaseAccIn.linear()}});
     }
 
     if(controller.running)
