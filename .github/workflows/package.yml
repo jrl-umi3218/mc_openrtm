@@ -149,7 +149,6 @@ jobs:
         else
           echo "CLOUDSMITH_REPO=mc-rtc/stable" >> $GITHUB_ENV
         fi
-        fi
     - name: Download packages
       uses: actions/download-artifact@v1
       with:
