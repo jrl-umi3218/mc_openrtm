@@ -4,13 +4,13 @@ name: Package mc-openrtm
 #
 # On master, it will:
 # - Build packages for selected Debian/Ubuntu distro
-# - Upload the packages to https://dl.bintray.com/gergondet/multi-contact-head
+# - Upload the packages to https://cloudsmith.io/~mc-rtc/repos/head/packages/
 #
 # On tagged versions it will:
 # - Create a GitHub release draft
 # - Attach the sources to the release
 # - Build packages for selected Debian/Ubuntu distro
-# - Upload the packages to https://dl.bintray.com/gergondet/multi-contact
+# - Upload the packages to https://cloudsmith.io/~mc-rtc/repos/stable/packages/
 # - Finalize the release
 
 on:
@@ -74,8 +74,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        dist: [xenial, bionic]
+        dist: [xenial, bionic, focal]
         arch: [i386, amd64]
+        exclude:
+          - dist: focal
+            arch: i386
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
@@ -98,17 +101,16 @@ jobs:
         fi
         if [ $REF == "master" ]
         then
-          echo "EXTRA_MIRROR=https://dl.bintray.com/gergondet/multi-contact-head" >> $GITHUB_ENV
+          echo "CLOUDSMITH_REPO=mc-rtc/head" >> $GITHUB_ENV
         else
-          echo "EXTRA_MIRROR=https://dl.bintray.com/gergondet/multi-contact-release" >> $GITHUB_ENV
+          echo "CLOUDSMITH_REPO=mc-rtc/stable" >> $GITHUB_ENV
         fi
     - name: Build package
       uses: jrl-umi3218/github-actions/build-package-native@master
       with:
         dist: ${{ matrix.dist }}
         arch: ${{ matrix.arch }}
-        other-mirrors: ${{ env.EXTRA_MIRROR }}
-        other-gpg-keys: "0x892EA6EE273707C6495A6FB6220D644C64666806"
+        cloudsmith-repo: ${{ env.CLOUDSMITH_REPO }}
     - uses: actions/upload-artifact@v1
       with:
         name: packages-${{ matrix.dist }}-${{ matrix.arch }}
@@ -120,8 +122,11 @@ jobs:
       max-parallel: 1
       fail-fast: true
       matrix:
-        dist: [xenial, bionic]
+        dist: [xenial, bionic, focal]
         arch: [i386, amd64]
+        exclude:
+          - dist: focal
+            arch: i386
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
@@ -140,11 +145,10 @@ jobs:
         fi
         if [ $REF == "master" ]
         then
-          echo "BINTRAY_REPO=multi-contact-head" >> $GITHUB_ENV
-          echo "BINTRAY_VERSION=HEAD" >> $GITHUB_ENV
+          echo "CLOUDSMITH_REPO=mc-rtc/head" >> $GITHUB_ENV
         else
-          echo "BINTRAY_REPO=multi-contact-release" >> $GITHUB_ENV
-          echo "BINTRAY_VERSION=${REF}" >> $GITHUB_ENV
+          echo "CLOUDSMITH_REPO=mc-rtc/stable" >> $GITHUB_ENV
+        fi
         fi
     - name: Download packages
       uses: actions/download-artifact@v1
@@ -153,44 +157,7 @@ jobs:
     - name: Upload
       uses: jrl-umi3218/github-actions/upload-package@master
       with:
-        dist: ${{ matrix.dist }}
-        arch: ${{ matrix.arch }}
-        subject: gergondet
-        repo: ${{ env.BINTRAY_REPO }}
-        package: |
-          name: mc-openrtm
-          desc: "Interface between OpenRTM and mc_rtc"
-          licenses: [BSD 2-Clause]
-          vcs_url: https://github.com/jrl-umi3218/mc_openrtm
-        version: ${{ env.BINTRAY_VERSION }}
+        dist: ubuntu/${{ matrix.dist }}
+        repo: ${{ env.CLOUDSMITH_REPO }}
         path: packages-${{ matrix.dist }}-${{ matrix.arch }}
-        BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
-        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-  # This job forces a mirror sync
-  mirror-sync:
-    needs: upload-packages
-    runs-on: ubuntu-18.04
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: recursive
-    - name: Set repository parameters
-      run: |
-        if [ "${{ github.event.action }}" == "package-master" ]
-        then
-          export REF=master
-        elif [ "${{ github.event.action }}" == "package-release" ]
-        then
-          export REF=`git tag --sort=committerdate --list 'v[0-9]*'|tail -1`
-        else
-          export REF=`echo ${{ github.ref }} | sed -e 's@refs/[a-z]*/@@'`
-        fi
-        if [ $REF == "master" ]
-        then
-          echo "BINTRAY_REPO=multi-contact-head" >> $GITHUB_ENV
-        else
-          echo "BINTRAY_REPO=multi-contact-release" >> $GITHUB_ENV
-        fi
-    - name: Request mirror sync
-      run: |
-        curl -ugergondet:${{ secrets.BINTRAY_API_KEY }} --header "X-GPG-PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}" -X POST https://api.bintray.com/calc_metadata/gergondet/${{ env.BINTRAY_REPO }}
+        CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
