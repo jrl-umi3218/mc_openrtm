@@ -126,6 +126,7 @@ def startMCControl():
     mc.setProperty("is_enabled", "1")
 
 def connectMCControl():
+    connectPorts(sh.port("qOut"), mc.port("qInit"))
     connectPorts(rh.port("q"), mc.port("qIn"))
     connectPorts(rh.port("dq"), mc.port("alphaIn"))
     connectPorts(rh.port("tauOut"), mc.port("taucIn"))
