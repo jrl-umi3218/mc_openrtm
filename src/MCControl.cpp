@@ -342,7 +342,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       if(!init)
       {
         mc_rtc::log::info("Init controller");
-        controller.init(qIn);
+        controller.init(qInit);
         init = true;
       }
       if(controller.run())
