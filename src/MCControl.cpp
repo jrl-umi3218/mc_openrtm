@@ -348,7 +348,8 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         }
         else
         {
-          mc_rtc::log::warning("The size of qInit does not mach the size of qIn, please update the corresponding Python script... using qIn instead to initialize the controller");
+          mc_rtc::log::warning("The size of qInit does not mach the size of qIn, please update the corresponding "
+                               "Python script... using qIn instead to initialize the controller");
           controller.init(qIn);
         }
         init = true;
