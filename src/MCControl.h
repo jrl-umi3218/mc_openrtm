@@ -9,7 +9,16 @@
  * $Id$
  */
 #ifndef MCCONTROL_H
-#define MCCONTROL_H
+#  define MCCONTROL_H
+
+/** Work-around for C++17 while OpenRTM is not updated to remove the throw(...) specification */
+#  if __cplusplus >= 201703L
+/** Include C++ headers that won't work well without the specification */
+#    include <iostream>
+#    include <optional>
+#    include <string>
+#    define throw(...)
+#  endif
 
 // clang-format off
 // Disable clang-format to protect the inclusion order
@@ -26,11 +35,15 @@
 
 // Service implementation headers
 // <rtc-template block="service_impl_h">
-#include "MCControlServiceSVC_impl.h"
+#  include "MCControlServiceSVC_impl.h"
 
-#include <mc_control/mc_global_controller.h>
+#  if __cplusplus >= 201703L
+#    undef throw
+#  endif
 
-#include <chrono>
+#  include <mc_control/mc_global_controller.h>
+
+#  include <chrono>
 
 // </rtc-template>
 

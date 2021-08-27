@@ -26,7 +26,7 @@ include(cmake/pkg-config.cmake)
 project(${PROJECT_NAME} CXX)
 
 # Dependencies
-find_package(mc_rtc 1.3.0 REQUIRED)
+find_package(mc_rtc REQUIRED)
 add_required_dependency(hrpsys-base)
 
 omniidl_include_directories("idl")
