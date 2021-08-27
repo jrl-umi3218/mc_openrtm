@@ -92,8 +92,8 @@ MCControl::MCControl(RTC::Manager* manager)
     // </rtc-template>
 // clang-format on
 {
-  auto rm = controller.get_robot_module();
-  for(const auto & fs : rm->forceSensors())
+  const auto & rm = controller.robot().module();
+  for(const auto & fs : rm.forceSensors())
   {
     m_wrenchesNames.push_back(fs.name());
   }
@@ -338,7 +338,6 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
 
     if(controller.running)
     {
-      double t = tm.sec * 1e9 + tm.nsec;
       if(!init)
       {
         mc_rtc::log::info("Init controller");
@@ -356,22 +355,37 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       }
       if(controller.run())
       {
+#if MC_RTC_VERSION_MAJOR < 2
+        double t = tm.sec * 1e9 + tm.nsec;
         const mc_solver::QPResultMsg & res = controller.send(t);
+#endif
         m_qOut.data.length(m_qIn.data.length());
         const auto & ref_joint_order = controller.robot().refJointOrder();
         for(unsigned int i = 0; i < ref_joint_order.size(); ++i)
         {
+#if MC_RTC_VERSION_MAJOR < 2
           if(res.robots_state[0].q.count(ref_joint_order[i]))
           {
             m_qOut.data[i] = res.robots_state[0].q.at(ref_joint_order[i])[0];
           }
+#else
+          auto jIdx = controller.robot().refJointIndexToQIndex(i);
+          if(jIdx != -1)
+          {
+            m_qOut.data[i] = controller.robot().q()->value()[jIdx];
+          }
+#endif
           else
           {
             m_qOut.data[i] = m_qIn.data[i];
           }
         }
         /* FIXME Correction RPY convention here? */
+#if MC_RTC_VERSION_MAJOR < 2
         const auto & ff_state = res.robots_state[0].q.at(controller.robot().mb().joint(0).name());
+#else
+        const auto & ff_state = controller.robot().qFloatingBase()->value();
+#endif
         if(ff_state.size())
         {
           Eigen::Vector3d rpyOut = Eigen::Quaterniond(ff_state[0], ff_state[1], ff_state[2], ff_state[3])
@@ -400,24 +414,39 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       m_qOut = m_qIn;
       /* Still run controller.run() in order to handle some service calls */
       mc_rbdyn::Robot & robot = const_cast<mc_rbdyn::Robot &>(controller.robot());
+#if MC_RTC_VERSION_MAJOR < 2
       std::vector<std::vector<double>> q = robot.mbc().q;
       if(q[0].size() == 7)
       {
         q[0] = {1, 0, 0, 0, 0, 0, 0.76};
       }
+#endif
       const std::vector<double> & initq = qIn;
       const auto & ref_joint_order = controller.ref_joint_order();
       for(size_t i = 0; i < ref_joint_order.size(); ++i)
       {
+#if MC_RTC_VERSION_MAJOR < 2
         const auto & jN = ref_joint_order[i];
         if(robot.hasJoint(jN))
         {
           q[robot.jointIndexByName(jN)] = {initq[i]};
         }
+#else
+        auto jIdx = robot.refJointIndexToQIndex(i);
+        if(jIdx != -1)
+        {
+          robot.q()->set(jIdx, initq[i]);
+        }
+#endif
       }
+#if MC_RTC_VERSION_MAJOR < 2
       robot.mbc().q = q;
       rbd::forwardKinematics(robot.mb(), robot.mbc());
       rbd::forwardVelocity(robot.mb(), robot.mbc());
+#else
+      robot.forwardKinematics();
+      robot.forwardVelocity();
+#endif
       controller.run();
     }
   }
