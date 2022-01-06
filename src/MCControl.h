@@ -199,6 +199,8 @@ protected:
 public:
   bool init;
   mc_control::MCGlobalController controller;
+  std::chrono::duration<double, std::milli> loop_dt{0};
+  std::chrono::steady_clock::time_point prev_start_t;
 };
 
 extern "C"

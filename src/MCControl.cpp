@@ -29,6 +29,8 @@
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
 
+using steady_clock = std::chrono::steady_clock;
+
 // Module specification
 // clang-format off
 // <rtc-template block="module_spec">
@@ -164,6 +166,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
 
 RTC::ReturnCode_t MCControl::onActivated(RTC::UniqueId ec_id)
 {
+  prev_start_t = steady_clock::now();
   mc_rtc::log::info("onActivated");
   return RTC::RTC_OK;
 }
@@ -176,6 +179,10 @@ RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
 
 RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
 {
+  auto start_t = steady_clock::now();
+  loop_dt = start_t - prev_start_t;
+  prev_start_t = start_t;
+
   for(size_t i = 0; i < m_wrenchesInIn.size(); ++i)
   {
     if(m_wrenchesInIn[i]->isNew())
@@ -351,6 +358,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
                                "Python script... using qIn instead to initialize the controller");
           controller.init(qIn);
         }
+        controller.controller().logger().addLogEntry("perf_LoopDt", [&]() { return loop_dt.count(); });
         init = true;
       }
       if(controller.run())
