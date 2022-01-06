@@ -200,7 +200,7 @@ public:
   bool init;
   mc_control::MCGlobalController controller;
   std::chrono::duration<double, std::milli> loop_dt{0};
-  std::chrono::high_resolution_clock::time_point prev_start_t;
+  std::chrono::steady_clock::time_point prev_start_t;
 };
 
 extern "C"
