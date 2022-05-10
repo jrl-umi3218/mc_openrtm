@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.1)
 
 set(PROJECT_NAME mc_openrtm)
 set(PROJECT_DESCRIPTION mc_openrtm)
-set(PROJECT_VERSION 1.1.0)
+set(PROJECT_VERSION 1.2.0)
 set(PROJECT_URL https://github.com/jrl-umi3218/mc_openrtm)
 set(PROJECT_DEBUG_POSTFIX "_d")
 set(PROJECT_USE_KEYWORD_LINK_LIBRARIES True)
