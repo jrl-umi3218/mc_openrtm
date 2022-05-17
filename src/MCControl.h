@@ -176,6 +176,10 @@ protected:
   OutPort<TimedPoint3D> m_pOutOut;
   TimedOrientation3D m_rpyOut;
   OutPort<TimedOrientation3D> m_rpyOutOut;
+  TimedDoubleSeq m_pgainsOut;
+  OutPort<TimedDoubleSeq> m_pgainsOutOut;
+  TimedDoubleSeq m_dgainsOut;
+  OutPort<TimedDoubleSeq> m_dgainsOutOut;
 
   // </rtc-template>
 

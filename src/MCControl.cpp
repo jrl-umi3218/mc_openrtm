@@ -88,6 +88,8 @@ MCControl::MCControl(RTC::Manager* manager)
     m_qOutOut("qOut", m_qOut),
     m_pOutOut("pOut", m_pOut),
     m_rpyOutOut("rpyOut", m_rpyOut),
+    m_pgainsOutOut("pgainsOut", m_pgainsOut),
+    m_dgainsOutOut("dgainsOut", m_dgainsOut),
     m_MCControlServicePortPort("MCControlServicePort"),
     m_service0(this),
     init(init_controller())
@@ -108,6 +110,34 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenchesInIn.push_back(new InPort<TimedDoubleSeq>(wrenchName.c_str(), *(m_wrenchesIn[i])));
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
   }
+
+  controller.controller().datastore().make_call("set_pdgains::"+controller.robot().name(),
+						[this](const std::vector<double> & p_vec,
+						       const std::vector<double> & d_vec) {
+						  const auto & rjo = controller.robot().refJointOrder();
+						  if(p_vec.size()!=rjo.size()) {
+						    return false;
+						  }
+						  if(d_vec.size()!=rjo.size()) {
+						    return false;
+						  }
+						  m_pgainsOut.data.length(rjo.size());
+						  m_dgainsOut.data.length(rjo.size());
+						  for (unsigned int i = 0; i < rjo.size(); i++) {
+						    m_pgainsOut.data[i] = p_vec[i];
+						    m_dgainsOut.data[i] = d_vec[i];
+						  }
+
+						  coil::TimeValue coiltm(coil::gettimeofday());
+						  RTC::Time tm;
+						  tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+						  tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+						  m_pgainsOut.tm = tm;
+						  m_dgainsOut.tm = tm;
+						  m_pgainsOutOut.write();
+						  m_dgainsOutOut.write();
+						  return true;
+						});
 }
 
 MCControl::~MCControl() {}
@@ -143,6 +173,8 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addOutPort("qOut", m_qOutOut);
   addOutPort("pOut", m_pOutOut);
   addOutPort("rpyOut", m_rpyOutOut);
+  addOutPort("pgainsOut", m_pgainsOutOut);
+  addOutPort("dgainsOut", m_dgainsOutOut);
 
   // Set service provider to Ports
   m_MCControlServicePortPort.registerProvider("service0", "MCControlService", m_service0);
