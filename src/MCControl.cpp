@@ -84,6 +84,8 @@ MCControl::MCControl(RTC::Manager* manager)
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
     m_baseAccInIn("baseAccIn", m_baseAccIn),
+    m_pgainsInIn("pgainsIn", m_pgainsIn),
+    m_dgainsInIn("dgainsIn", m_dgainsIn),
     m_wrenchesNames(),
     m_qOutOut("qOut", m_qOut),
     m_pOutOut("pOut", m_pOut),
@@ -111,7 +113,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
   }
 
-  controller.controller().datastore().make_call("set_pdgains::"+controller.robot().name(),
+  controller.controller().datastore().make_call(controller.robot().name() + "::SetPDGains",
 						[this](const std::vector<double> & p_vec,
 						       const std::vector<double> & d_vec) {
 						  const auto & rjo = controller.robot().refJointOrder();
@@ -138,6 +140,20 @@ MCControl::MCControl(RTC::Manager* manager)
 						  m_dgainsOutOut.write();
 						  return true;
 						});
+  controller.controller().datastore().make_call(controller.robot().name() + "::GetPDGains",
+						[this](std::vector<double> & p_vec,
+						       std::vector<double> & d_vec) {
+						  p_vec.resize(0);
+						  d_vec.resize(0);
+						  m_pgainsInIn.read();
+						  m_dgainsInIn.read();
+						  for (unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
+						  {
+						    p_vec.push_back(m_pgainsIn.data[i]);
+						    d_vec.push_back(m_dgainsIn.data[i]);
+						  }
+						  return true;
+						});
 }
 
 MCControl::~MCControl() {}
@@ -158,6 +174,8 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  addInPort("pgainsIn", m_pgainsInIn);
+  addInPort("dgainsIn", m_dgainsInIn);
   // Floating base
   addInPort("basePoseIn", m_basePoseInIn);
   addInPort("baseVelIn", m_baseVelInIn);
