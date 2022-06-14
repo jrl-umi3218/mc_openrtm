@@ -81,6 +81,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_motorTempInIn("motorTempIn", m_motorTempIn),
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
     m_baseAccInIn("baseAccIn", m_baseAccIn),
@@ -108,6 +109,14 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenchesInIn.push_back(new InPort<TimedDoubleSeq>(wrenchName.c_str(), *(m_wrenchesIn[i])));
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
   }
+
+  m_motorTempInIn.read();
+  auto & gui = *controller.controller().gui();
+  for(unsigned int i = 0; i < m_motorTempIn.data.length(); i++)
+  {
+    gui.addElement({"Global", rm.name, "Motor Temperature"},
+                   mc_rtc::gui::Label(std::to_string(i), [this, i]() { return m_motorTempIn.data[i]; }));
+  }
 }
 
 MCControl::~MCControl() {}
@@ -128,6 +137,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  addInPort("motorTempIn", m_motorTempInIn);
   // Floating base
   addInPort("basePoseIn", m_basePoseInIn);
   addInPort("baseVelIn", m_baseVelInIn);

@@ -148,6 +148,8 @@ protected:
   TimedDoubleSeq m_taucIn;
   InPort<TimedDoubleSeq> m_taucInIn;
   std::vector<double> taucIn;
+  TimedDoubleSeq m_motorTempIn;
+  InPort<TimedDoubleSeq> m_motorTempInIn;
 
   // Floating base input (e.g simulation groundtruth)
   RTC::InPort<RTC::TimedPose3D> m_basePoseInIn;
