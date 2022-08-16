@@ -81,6 +81,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_motorTempNames(),
     m_motorTempInIn("motorTempIn", m_motorTempIn),
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
@@ -108,6 +109,11 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenchesIn.push_back(new TimedDoubleSeq());
     m_wrenchesInIn.push_back(new InPort<TimedDoubleSeq>(wrenchName.c_str(), *(m_wrenchesIn[i])));
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
+  }
+
+  for(const auto & js : rm.jointSensors())
+  {
+    m_motorTempNames.push_back(js.joint());
   }
 }
 
@@ -315,9 +321,10 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
   if(m_motorTempInIn.isNew())
   {
     m_motorTempInIn.read();
-    for(unsigned int i = 0; i < m_motorTempIn.data.length(); i++)
+    for (unsigned int i = 0; i < m_motorTempNames.size(); i++)
     {
-      // do nothing for now
+      auto jIndex = controller.robot().jointIndexByName(m_motorTempNames[i]);
+      motorTempIn[m_motorTempNames[i]] = m_motorTempIn.data[i];
     }
   }
   if(m_qInIn.isNew())
@@ -341,6 +348,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setEncoderVelocities(alphaIn);
     controller.setWrenches(m_wrenches);
     controller.setJointTorques(taucIn);
+    controller.setJointMotorTemperatures(motorTempIn);
 
     // Floating base sensor
     if(controller.robot().hasBodySensor("FloatingBase"))
