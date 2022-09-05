@@ -407,25 +407,6 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       init = false;
       m_qOut = m_qIn;
       /* Still run controller.run() in order to handle some service calls */
-      mc_rbdyn::Robot & robot = const_cast<mc_rbdyn::Robot &>(controller.robot());
-      std::vector<std::vector<double>> q = robot.mbc().q;
-      if(q[0].size() == 7)
-      {
-        q[0] = {1, 0, 0, 0, 0, 0, 0.76};
-      }
-      const std::vector<double> & initq = qIn;
-      const auto & ref_joint_order = controller.ref_joint_order();
-      for(size_t i = 0; i < ref_joint_order.size(); ++i)
-      {
-        const auto & jN = ref_joint_order[i];
-        if(robot.hasJoint(jN))
-        {
-          q[robot.jointIndexByName(jN)] = {initq[i]};
-        }
-      }
-      robot.mbc().q = q;
-      rbd::forwardKinematics(robot.mb(), robot.mbc());
-      rbd::forwardVelocity(robot.mb(), robot.mbc());
       controller.run();
     }
   }
