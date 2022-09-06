@@ -117,15 +117,15 @@ MCControl::MCControl(RTC::Manager* manager)
   {
     m_motorTempNames.push_back(js.joint());
     auto rjo_it = std::find(rjo.begin(), rjo.end(), js.joint());
-    if (rjo_it != rjo.end())
+    if(rjo_it != rjo.end())
     {
       int rjo_idx = std::distance(rjo.begin(), rjo_it);
       m_motorTempToRJOIndex.push_back(rjo_idx);
     }
     else
     {
-      mc_rtc::log::error_and_throw<std::runtime_error>("RobotModule contains a JointSensor at {} but it was not found in the refJointOrder.",
-						       js.joint());
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "RobotModule contains a JointSensor at {} but it was not found in the refJointOrder.", js.joint());
     }
   }
 }
@@ -334,7 +334,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
   if(m_motorTempInIn.isNew())
   {
     m_motorTempInIn.read();
-    for (unsigned int i = 0; i < m_motorTempNames.size(); i++)
+    for(unsigned int i = 0; i < m_motorTempNames.size(); i++)
     {
       motorTempIn[m_motorTempNames[i]] = m_motorTempIn.data[m_motorTempToRJOIndex[i]];
     }
