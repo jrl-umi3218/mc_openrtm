@@ -150,7 +150,7 @@ protected:
   std::vector<double> taucIn;
 
   std::vector<std::string> m_motorTempNames;
-  std::vector<int> m_motorTempToRJOIndex;
+  std::vector<size_t> m_motorTempToRJOIndex;
   TimedDoubleSeq m_motorTempIn;
   InPort<TimedDoubleSeq> m_motorTempInIn;
   std::map<std::string, double> motorTempIn;

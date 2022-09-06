@@ -124,7 +124,8 @@ MCControl::MCControl(RTC::Manager* manager)
     }
     else
     {
-      mc_rtc::log::warning("RobotModule contains a JointSensor at {} but it was not found in RJO.", js.joint());
+      mc_rtc::log::error_and_throw<std::runtime_error>("RobotModule contains a JointSensor at {} but it was not found in the refJointOrder.",
+						       js.joint());
     }
   }
 }
