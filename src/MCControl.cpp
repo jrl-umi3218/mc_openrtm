@@ -82,6 +82,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
     m_motorTempNames(),
+    m_motorTempToRJOIndex(),
     m_motorTempInIn("motorTempIn", m_motorTempIn),
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
@@ -111,9 +112,20 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
   }
 
+  const auto & rjo = controller.robot().refJointOrder();
   for(const auto & js : rm.jointSensors())
   {
     m_motorTempNames.push_back(js.joint());
+    auto rjo_it = std::find(rjo.begin(), rjo.end(), js.joint());
+    if (rjo_it != rjo.end())
+    {
+      int rjo_idx = std::distance(rjo.begin(), rjo_it);
+      m_motorTempToRJOIndex.push_back(rjo_idx);
+    }
+    else
+    {
+      mc_rtc::log::warning("RobotModule contains a JointSensor at {} but it was not found in RJO.", js.joint());
+    }
   }
 }
 
@@ -323,8 +335,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     m_motorTempInIn.read();
     for (unsigned int i = 0; i < m_motorTempNames.size(); i++)
     {
-      auto jIndex = controller.robot().jointIndexByName(m_motorTempNames[i]);
-      motorTempIn[m_motorTempNames[i]] = m_motorTempIn.data[i];
+      motorTempIn[m_motorTempNames[i]] = m_motorTempIn.data[m_motorTempToRJOIndex[i]];
     }
   }
   if(m_qInIn.isNew())
