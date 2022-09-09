@@ -81,6 +81,9 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_motorTempNames(),
+    m_motorTempToRJOIndex(),
+    m_motorTempInIn("motorTempIn", m_motorTempIn),
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
     m_baseAccInIn("baseAccIn", m_baseAccIn),
@@ -108,6 +111,23 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenchesInIn.push_back(new InPort<TimedDoubleSeq>(wrenchName.c_str(), *(m_wrenchesIn[i])));
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
   }
+
+  const auto & rjo = controller.robot().refJointOrder();
+  for(const auto & js : rm.jointSensors())
+  {
+    m_motorTempNames.push_back(js.joint());
+    auto rjo_it = std::find(rjo.begin(), rjo.end(), js.joint());
+    if(rjo_it != rjo.end())
+    {
+      int rjo_idx = std::distance(rjo.begin(), rjo_it);
+      m_motorTempToRJOIndex.push_back(rjo_idx);
+    }
+    else
+    {
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "RobotModule contains a JointSensor at {} but it was not found in the refJointOrder.", js.joint());
+    }
+  }
 }
 
 MCControl::~MCControl() {}
@@ -128,6 +148,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  addInPort("motorTempIn", m_motorTempInIn);
   // Floating base
   addInPort("basePoseIn", m_basePoseInIn);
   addInPort("baseVelIn", m_baseVelInIn);
@@ -310,6 +331,14 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       alphaIn[i] = m_alphaIn.data[i];
     }
   }
+  if(m_motorTempInIn.isNew())
+  {
+    m_motorTempInIn.read();
+    for(unsigned int i = 0; i < m_motorTempNames.size(); i++)
+    {
+      motorTempIn[m_motorTempNames[i]] = m_motorTempIn.data[m_motorTempToRJOIndex[i]];
+    }
+  }
   if(m_qInIn.isNew())
   {
     m_qInIn.read();
@@ -331,6 +360,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setEncoderVelocities(alphaIn);
     controller.setWrenches(m_wrenches);
     controller.setJointTorques(taucIn);
+    controller.setJointMotorTemperatures(motorTempIn);
 
     // Floating base sensor
     if(controller.robot().hasBodySensor("FloatingBase"))
