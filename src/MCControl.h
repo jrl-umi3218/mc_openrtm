@@ -153,6 +153,12 @@ protected:
   TimedDoubleSeq m_dgainsIn;
   InPort<TimedDoubleSeq> m_dgainsInIn;
 
+  std::vector<std::string> m_motorTempNames;
+  std::vector<size_t> m_motorTempToRJOIndex;
+  TimedDoubleSeq m_motorTempIn;
+  InPort<TimedDoubleSeq> m_motorTempInIn;
+  std::map<std::string, double> motorTempIn;
+
   // Floating base input (e.g simulation groundtruth)
   RTC::InPort<RTC::TimedPose3D> m_basePoseInIn;
   RTC::InPort<RTC::TimedDoubleSeq> m_baseVelInIn;

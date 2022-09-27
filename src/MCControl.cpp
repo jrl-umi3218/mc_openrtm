@@ -81,6 +81,9 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_motorTempNames(),
+    m_motorTempToRJOIndex(),
+    m_motorTempInIn("motorTempIn", m_motorTempIn),
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
     m_baseAccInIn("baseAccIn", m_baseAccIn),
@@ -111,6 +114,23 @@ MCControl::MCControl(RTC::Manager* manager)
     m_wrenchesIn.push_back(new TimedDoubleSeq());
     m_wrenchesInIn.push_back(new InPort<TimedDoubleSeq>(wrenchName.c_str(), *(m_wrenchesIn[i])));
     m_wrenches[wrenchName] = sva::ForceVecd(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 0));
+  }
+
+  const auto & rjo = controller.robot().refJointOrder();
+  for(const auto & js : rm.jointSensors())
+  {
+    m_motorTempNames.push_back(js.joint());
+    auto rjo_it = std::find(rjo.begin(), rjo.end(), js.joint());
+    if(rjo_it != rjo.end())
+    {
+      int rjo_idx = std::distance(rjo.begin(), rjo_it);
+      m_motorTempToRJOIndex.push_back(rjo_idx);
+    }
+    else
+    {
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "RobotModule contains a JointSensor at {} but it was not found in the refJointOrder.", js.joint());
+    }
   }
 
   controller.controller().datastore().make_call(controller.robot().name() + "::SetPDGains",
@@ -176,6 +196,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("taucIn", m_taucInIn);
   addInPort("pgainsIn", m_pgainsInIn);
   addInPort("dgainsIn", m_dgainsInIn);
+  addInPort("motorTempIn", m_motorTempInIn);
   // Floating base
   addInPort("basePoseIn", m_basePoseInIn);
   addInPort("baseVelIn", m_baseVelInIn);
@@ -360,6 +381,14 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       alphaIn[i] = m_alphaIn.data[i];
     }
   }
+  if(m_motorTempInIn.isNew())
+  {
+    m_motorTempInIn.read();
+    for(unsigned int i = 0; i < m_motorTempNames.size(); i++)
+    {
+      motorTempIn[m_motorTempNames[i]] = m_motorTempIn.data[m_motorTempToRJOIndex[i]];
+    }
+  }
   if(m_qInIn.isNew())
   {
     m_qInIn.read();
@@ -381,6 +410,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     controller.setEncoderVelocities(alphaIn);
     controller.setWrenches(m_wrenches);
     controller.setJointTorques(taucIn);
+    controller.setJointMotorTemperatures(motorTempIn);
 
     // Floating base sensor
     if(controller.robot().hasBodySensor("FloatingBase"))
@@ -457,25 +487,6 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       init = false;
       m_qOut = m_qIn;
       /* Still run controller.run() in order to handle some service calls */
-      mc_rbdyn::Robot & robot = const_cast<mc_rbdyn::Robot &>(controller.robot());
-      std::vector<std::vector<double>> q = robot.mbc().q;
-      if(q[0].size() == 7)
-      {
-        q[0] = {1, 0, 0, 0, 0, 0, 0.76};
-      }
-      const std::vector<double> & initq = qIn;
-      const auto & ref_joint_order = controller.ref_joint_order();
-      for(size_t i = 0; i < ref_joint_order.size(); ++i)
-      {
-        const auto & jN = ref_joint_order[i];
-        if(robot.hasJoint(jN))
-        {
-          q[robot.jointIndexByName(jN)] = {initq[i]};
-        }
-      }
-      robot.mbc().q = q;
-      rbd::forwardKinematics(robot.mb(), robot.mbc());
-      rbd::forwardVelocity(robot.mb(), robot.mbc());
       controller.run();
     }
   }

@@ -1,4 +1,10 @@
-mc-openrtm (1.2.1-1debian1) UNRELEASED; urgency=medium
+mc-openrtm (1.2.2-1debian1) unstable; urgency=medium
+
+  * Upstream update
+
+ -- Pierre Gergondet <pierre.gergondet+ppa@gmail.com>  Mon, 05 Sep 2022 11:57:54 +0900
+
+mc-openrtm (1.2.1-1debian1) unstable; urgency=medium
 
   * Upstream update
 
