@@ -399,7 +399,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         for(size_t i = 0; i < ref_joint_order.size(); ++i)
         {
           auto jIdx = controller.robot().jointIndexInMBC(i);
-          if(jIdx != -1)
+          if(jIdx != -1 && qOut[static_cast<size_t>(jIdx)].size() == 1)
           {
             m_qOut.data[i] = qOut[static_cast<size_t>(jIdx)][0];
           }
