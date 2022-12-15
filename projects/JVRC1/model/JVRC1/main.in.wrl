@@ -765,7 +765,7 @@ DEF JVRC-1 Humanoid {
 						  jointType "rotate"
 						  jointAxis "X"
 						  jointId 25
-						  translation 0 0.023 -0.084
+						  translation 0 0.033 -0.084
 						  ulimit [0] #+0
 						  llimit [-0.7853981633974483] #-45
 						  uvlimit [ 6.80678]
@@ -807,7 +807,7 @@ DEF JVRC-1 Humanoid {
 						  jointType "rotate"
 						  jointAxis "X"
 						  jointId 27
-						  translation 0.025 -0.006 -0.102
+						  translation 0.025 -0.016 -0.084
 						  ulimit [1.5707963267948966] #+90
 						  llimit [0] #-0
 						  uvlimit [ 9.42477]
@@ -849,10 +849,9 @@ DEF JVRC-1 Humanoid {
 						  jointType "rotate"
 						  jointAxis "X"
 						  jointId 29
-						  translation -0.025 -0.006 -0.102
+						  translation -0.025 -0.016 -0.084
 						  ulimit [1.5707963267948966] #+90
 						  llimit [0] #-0
-
 						  uvlimit [ 9.42477]
 						  lvlimit [-9.42477]
 						  rotorInertia 0.0073
@@ -1028,7 +1027,7 @@ DEF JVRC-1 Humanoid {
 						  jointType "rotate"
 						  jointAxis "X"
 						  jointId 38
-						  translation 0 -0.023 -0.084
+						  translation 0 -0.033 -0.084
 						  ulimit [0.7853981633974483] #+45
 						  llimit [-0] #-0
 						  uvlimit [ 6.80678]
@@ -1070,7 +1069,7 @@ DEF JVRC-1 Humanoid {
 						  jointType "rotate"
 						  jointAxis "X"
 						  jointId 40
-						  translation 0.025 0.006 -0.102
+						  translation 0.025 0.016 -0.084
 						  ulimit [0] #+0
 						  llimit [-1.5707963267948966] #-90
 						  uvlimit [ 9.42477]
@@ -1112,7 +1111,7 @@ DEF JVRC-1 Humanoid {
 						  jointType "rotate"
 						  jointAxis "X"
 						  jointId 42
-						  translation -0.025 0.006 -0.102
+						  translation -0.025 0.016 -0.084
 						  ulimit [0] #+0
 						  llimit [-1.5707963267948966] #-90
 						  uvlimit [ 9.42477]
