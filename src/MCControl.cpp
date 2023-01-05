@@ -148,6 +148,16 @@ MCControl::MCControl(RTC::Manager* manager)
           return false;
         }
 
+#ifdef USE_IOB
+        // if on real robot
+        open_iob();
+        for(unsigned int i = 0; i < rjo.size(); i++)
+        {
+          write_pgain(i, p_vec[i]);
+          write_dgain(i, d_vec[i]);
+        }
+        close_iob();
+#else
         // if not on real robot
         m_pgainsOut.data.length(rjo.size());
         m_dgainsOut.data.length(rjo.size());
@@ -165,31 +175,14 @@ MCControl::MCControl(RTC::Manager* manager)
         m_dgainsOut.tm = tm;
         m_pgainsOutOut.write();
         m_dgainsOutOut.write();
-
-        // if on real robot
-        open_iob();
-        for(unsigned int i = 0; i < rjo.size(); i++)
-        {
-          write_pgain(i, p_vec[i]);
-          write_dgain(i, d_vec[i]);
-        }
-        close_iob();
+#endif
         return true;
       });
   controller.controller().datastore().make_call(controller.robot().name() + "::GetPDGains",
                                                 [this](std::vector<double> & p_vec, std::vector<double> & d_vec) {
                                                   p_vec.resize(0);
                                                   d_vec.resize(0);
-
-                                                  // if not on real robot
-                                                  m_pgainsInIn.read();
-                                                  m_dgainsInIn.read();
-                                                  for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
-                                                  {
-                                                    p_vec.push_back(m_pgainsIn.data[i]);
-                                                    d_vec.push_back(m_dgainsIn.data[i]);
-                                                  }
-
+#ifdef USE_IOB
                                                   // if on real robot
                                                   size_t num_joints = number_of_joints();
                                                   p_vec.resize(num_joints);
@@ -201,6 +194,16 @@ MCControl::MCControl(RTC::Manager* manager)
                                                     read_dgain(i, &d_vec[i]);
                                                   }
                                                   close_iob();
+#else
+                                                  // if not on real robot
+                                                  m_pgainsInIn.read();
+                                                  m_dgainsInIn.read();
+                                                  for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
+                                                  {
+                                                    p_vec.push_back(m_pgainsIn.data[i]);
+                                                    d_vec.push_back(m_dgainsIn.data[i]);
+                                                  }
+#endif
                                                   return true;
                                                 });
 }
