@@ -184,10 +184,10 @@ MCControl::MCControl(RTC::Manager* manager)
                                                   d_vec.resize(0);
 #ifdef USE_IOB
                                                   // if on real robot
+                                                  open_iob();
                                                   size_t num_joints = number_of_joints();
                                                   p_vec.resize(num_joints);
                                                   d_vec.resize(num_joints);
-                                                  open_iob();
                                                   for(unsigned int i = 0; i < num_joints; i++)
                                                   {
                                                     read_pgain(i, &p_vec[i]);
