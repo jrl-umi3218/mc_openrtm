@@ -29,6 +29,8 @@
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
 
+#include "hrpsys/io/iob.h"
+
 using steady_clock = std::chrono::steady_clock;
 
 // Module specification
@@ -145,6 +147,8 @@ MCControl::MCControl(RTC::Manager* manager)
         {
           return false;
         }
+
+        // if not on real robot
         m_pgainsOut.data.length(rjo.size());
         m_dgainsOut.data.length(rjo.size());
         for(unsigned int i = 0; i < rjo.size(); i++)
@@ -161,12 +165,23 @@ MCControl::MCControl(RTC::Manager* manager)
         m_dgainsOut.tm = tm;
         m_pgainsOutOut.write();
         m_dgainsOutOut.write();
+
+        // if on real robot
+        open_iob();
+        for(unsigned int i = 0; i < rjo.size(); i++)
+        {
+          write_pgain(i, p_vec[i]);
+          write_dgain(i, d_vec[i]);
+        }
+        close_iob();
         return true;
       });
   controller.controller().datastore().make_call(controller.robot().name() + "::GetPDGains",
                                                 [this](std::vector<double> & p_vec, std::vector<double> & d_vec) {
                                                   p_vec.resize(0);
                                                   d_vec.resize(0);
+
+                                                  // if not on real robot
                                                   m_pgainsInIn.read();
                                                   m_dgainsInIn.read();
                                                   for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
@@ -174,6 +189,18 @@ MCControl::MCControl(RTC::Manager* manager)
                                                     p_vec.push_back(m_pgainsIn.data[i]);
                                                     d_vec.push_back(m_dgainsIn.data[i]);
                                                   }
+
+                                                  // if on real robot
+                                                  size_t num_joints = number_of_joints();
+                                                  p_vec.resize(num_joints);
+                                                  d_vec.resize(num_joints);
+                                                  open_iob();
+                                                  for(unsigned int i = 0; i < num_joints; i++)
+                                                  {
+                                                    read_pgain(i, &p_vec[i]);
+                                                    read_dgain(i, &d_vec[i]);
+                                                  }
+                                                  close_iob();
                                                   return true;
                                                 });
 }
