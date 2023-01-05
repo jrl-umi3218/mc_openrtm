@@ -133,47 +133,49 @@ MCControl::MCControl(RTC::Manager* manager)
     }
   }
 
-  controller.controller().datastore().make_call(controller.robot().name() + "::SetPDGains",
-						[this](const std::vector<double> & p_vec,
-						       const std::vector<double> & d_vec) {
-						  const auto & rjo = controller.robot().refJointOrder();
-						  if(p_vec.size()!=rjo.size()) {
-						    return false;
-						  }
-						  if(d_vec.size()!=rjo.size()) {
-						    return false;
-						  }
-						  m_pgainsOut.data.length(rjo.size());
-						  m_dgainsOut.data.length(rjo.size());
-						  for (unsigned int i = 0; i < rjo.size(); i++) {
-						    m_pgainsOut.data[i] = p_vec[i];
-						    m_dgainsOut.data[i] = d_vec[i];
-						  }
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::SetPDGains",
+      [this](const std::vector<double> & p_vec, const std::vector<double> & d_vec) {
+        const auto & rjo = controller.robot().refJointOrder();
+        if(p_vec.size() != rjo.size())
+        {
+          return false;
+        }
+        if(d_vec.size() != rjo.size())
+        {
+          return false;
+        }
+        m_pgainsOut.data.length(rjo.size());
+        m_dgainsOut.data.length(rjo.size());
+        for(unsigned int i = 0; i < rjo.size(); i++)
+        {
+          m_pgainsOut.data[i] = p_vec[i];
+          m_dgainsOut.data[i] = d_vec[i];
+        }
 
-						  coil::TimeValue coiltm(coil::gettimeofday());
-						  RTC::Time tm;
-						  tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
-						  tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
-						  m_pgainsOut.tm = tm;
-						  m_dgainsOut.tm = tm;
-						  m_pgainsOutOut.write();
-						  m_dgainsOutOut.write();
-						  return true;
-						});
+        coil::TimeValue coiltm(coil::gettimeofday());
+        RTC::Time tm;
+        tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+        tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+        m_pgainsOut.tm = tm;
+        m_dgainsOut.tm = tm;
+        m_pgainsOutOut.write();
+        m_dgainsOutOut.write();
+        return true;
+      });
   controller.controller().datastore().make_call(controller.robot().name() + "::GetPDGains",
-						[this](std::vector<double> & p_vec,
-						       std::vector<double> & d_vec) {
-						  p_vec.resize(0);
-						  d_vec.resize(0);
-						  m_pgainsInIn.read();
-						  m_dgainsInIn.read();
-						  for (unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
-						  {
-						    p_vec.push_back(m_pgainsIn.data[i]);
-						    d_vec.push_back(m_dgainsIn.data[i]);
-						  }
-						  return true;
-						});
+                                                [this](std::vector<double> & p_vec, std::vector<double> & d_vec) {
+                                                  p_vec.resize(0);
+                                                  d_vec.resize(0);
+                                                  m_pgainsInIn.read();
+                                                  m_dgainsInIn.read();
+                                                  for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
+                                                  {
+                                                    p_vec.push_back(m_pgainsIn.data[i]);
+                                                    d_vec.push_back(m_dgainsIn.data[i]);
+                                                  }
+                                                  return true;
+                                                });
 }
 
 MCControl::~MCControl() {}
