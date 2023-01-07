@@ -210,6 +210,10 @@ protected:
 
   // </rtc-template>
 
+  // methods for reading/writing pd gains
+  bool getServoGains(std::vector<double> & p_vec, std::vector<double> & d_vec);
+  bool setServoGains(const std::vector<double> & p_vec, const std::vector<double> & d_vec);
+
 public:
   bool init;
   mc_control::MCGlobalController controller;
