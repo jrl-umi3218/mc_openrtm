@@ -135,16 +135,19 @@ MCControl::MCControl(RTC::Manager* manager)
     }
   }
 
-  controller.controller().datastore().make_call(
-      controller.robot().name() + "::SetPDGains",
-      [this](const std::vector<double> & p_vec, const std::vector<double> & d_vec) {
-        return setServoGains(p_vec, d_vec);
-      });
+  // create datastore calls for reading/writing servo pd gains
   controller.controller().datastore().make_call(
       controller.robot().name() + "::GetPDGains",
-      [this](std::vector<double> & p_vec, std::vector<double> & d_vec) {
-        return getServoGains(p_vec, d_vec);
-      });
+      [this](std::vector<double> & p, std::vector<double> & d) { return getServoGains(p, d); });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::GetPDGainsByName",
+      [this](const std::string & jn, double & p, double & d) { return getServoGainsByName(jn, p, d); });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::SetPDGains",
+      [this](const std::vector<double> & p, const std::vector<double> & d) { return setServoGains(p, d); });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::SetPDGainsByName",
+      [this](const std::string & jn, double p, double d) { return setServoGainsByName(jn, p, d); });
 }
 
 MCControl::~MCControl() {}
@@ -177,6 +180,34 @@ bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> &
 #endif
   return true;
 }
+
+bool MCControl::getServoGainsByName(const std::string & jn, double & p, double & d)
+{
+  const auto & rjo = controller.robot().refJointOrder();
+  auto rjo_it = std::find(rjo.begin(), rjo.end(), jn);
+  if(rjo_it == rjo.end())
+  {
+    mc_rtc::log::warning("[mc_openrmt] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
+                         controller.robot().name(), jn);
+    return false;
+  }
+  int rjo_idx = std::distance(rjo.begin(), rjo_it);
+#ifdef USE_IOB
+  // if on real robot
+  open_iob();
+  read_pgain(i, &p);
+  read_dgain(i, &d);
+  close_iob();
+#else
+  // if not on real robot
+  m_pgainsInIn.read();
+  m_dgainsInIn.read();
+  p = m_pgainsIn.data[rjo_idx];
+  d = m_dgainsIn.data[rjo_idx];
+#endif
+  return true;
+}
+
 bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vector<double> & d_vec)
 {
   const auto & rjo = controller.robot().refJointOrder();
@@ -218,6 +249,49 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
   m_dgainsOutOut.write();
 #endif
   return true;
+}
+
+bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
+{
+  const auto & rjo = controller.robot().refJointOrder();
+  auto rjo_it = std::find(rjo.begin(), rjo.end(), jn);
+  if(rjo_it == rjo.end())
+  {
+    mc_rtc::log::warning("[mc_openrmt] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
+                         controller.robot().name(), jn);
+    return false;
+  }
+  int rjo_idx = std::distance(rjo.begin(), rjo_it);
+#ifdef USE_IOB
+  // if on real robot
+  open_iob();
+  write_pgain(rjo_idx, p);
+  write_dgain(rjo_idx, d);
+  close_iob();
+#else
+  // if not on real robot
+  std::vector<double> p_vec;
+  std::vector<double> d_vec;
+  getServoGains(p_vec, d_vec);
+  p_vec[rjo_idx] = p;
+  d_vec[rjo_idx] = d;
+  m_pgainsOut.data.length(rjo.size());
+  m_dgainsOut.data.length(rjo.size());
+  for(unsigned int i = 0; i < rjo.size(); i++)
+  {
+    m_pgainsOut.data[i] = p_vec[i];
+    m_dgainsOut.data[i] = d_vec[i];
+  }
+
+  coil::TimeValue coiltm(coil::gettimeofday());
+  RTC::Time tm;
+  tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+  tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+  m_pgainsOut.tm = tm;
+  m_dgainsOut.tm = tm;
+  m_pgainsOutOut.write();
+  m_dgainsOutOut.write();
+#endif
 }
 
 RTC::ReturnCode_t MCControl::onInitialize()

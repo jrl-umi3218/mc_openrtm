@@ -212,7 +212,9 @@ protected:
 
   // methods for reading/writing pd gains
   bool getServoGains(std::vector<double> & p_vec, std::vector<double> & d_vec);
+  bool getServoGainsByName(const std::string & jn, double & p, double & d);
   bool setServoGains(const std::vector<double> & p_vec, const std::vector<double> & d_vec);
+  bool setServoGainsByName(const std::string & jn, double p, double d);
 
 public:
   bool init;
