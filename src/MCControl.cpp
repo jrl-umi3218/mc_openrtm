@@ -185,7 +185,7 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
   auto rjo_it = std::find(rjo.begin(), rjo.end(), jn);
   if(rjo_it == rjo.end())
   {
-    mc_rtc::log::warning("[mc_openrmt] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
+    mc_rtc::log::warning("[mc_openrtm] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
                          controller.robot().name(), jn);
     return false;
   }
@@ -255,7 +255,7 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
   auto rjo_it = std::find(rjo.begin(), rjo.end(), jn);
   if(rjo_it == rjo.end())
   {
-    mc_rtc::log::warning("[mc_openrmt] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
+    mc_rtc::log::warning("[mc_openrtm] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
                          controller.robot().name(), jn);
     return false;
   }
@@ -290,6 +290,7 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
   m_pgainsOutOut.write();
   m_dgainsOutOut.write();
 #endif
+  return true;
 }
 
 RTC::ReturnCode_t MCControl::onInitialize()
