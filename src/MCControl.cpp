@@ -135,77 +135,86 @@ MCControl::MCControl(RTC::Manager* manager)
     }
   }
 
+  auto setPDGains = [&](const std::vector<double> & p_vec, const std::vector<double> & d_vec) {
+    const auto & rjo = controller.robot().refJointOrder();
+    if(p_vec.size() != rjo.size())
+    {
+      return false;
+    }
+    if(d_vec.size() != rjo.size())
+    {
+      return false;
+    }
+
+#ifdef USE_IOB
+    // if on real robot
+    open_iob();
+    for(unsigned int i = 0; i < rjo.size(); i++)
+    {
+      write_pgain(i, p_vec[i]);
+      write_dgain(i, d_vec[i]);
+    }
+    close_iob();
+#else
+    // if not on real robot
+    m_pgainsOut.data.length(rjo.size());
+    m_dgainsOut.data.length(rjo.size());
+    for(unsigned int i = 0; i < rjo.size(); i++)
+    {
+      m_pgainsOut.data[i] = p_vec[i];
+      m_dgainsOut.data[i] = d_vec[i];
+    }
+
+    coil::TimeValue coiltm(coil::gettimeofday());
+    RTC::Time tm;
+    tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+    m_pgainsOut.tm = tm;
+    m_dgainsOut.tm = tm;
+    m_pgainsOutOut.write();
+    m_dgainsOutOut.write();
+#endif
+    return true;
+  };
+
+  auto getPDGains = [&](std::vector<double> & p_vec, std::vector<double> & d_vec) {
+    p_vec.resize(0);
+    d_vec.resize(0);
+#ifdef USE_IOB
+    // if on real robot
+    open_iob();
+    size_t num_joints = number_of_joints();
+    p_vec.resize(num_joints);
+    d_vec.resize(num_joints);
+    for(unsigned int i = 0; i < num_joints; i++)
+    {
+      read_pgain(i, &p_vec[i]);
+      read_dgain(i, &d_vec[i]);
+    }
+    close_iob();
+#else
+    // if not on real robot
+    m_pgainsInIn.read();
+    m_dgainsInIn.read();
+    for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
+    {
+      p_vec.push_back(m_pgainsIn.data[i]);
+      d_vec.push_back(m_dgainsIn.data[i]);
+    }
+#endif
+    return true;
+  };
+
   controller.controller().datastore().make_call(
       controller.robot().name() + "::SetPDGains",
-      [this](const std::vector<double> & p_vec, const std::vector<double> & d_vec) {
-        const auto & rjo = controller.robot().refJointOrder();
-        if(p_vec.size() != rjo.size())
-        {
-          return false;
-        }
-        if(d_vec.size() != rjo.size())
-        {
-          return false;
-        }
-
-#ifdef USE_IOB
-        // if on real robot
-        open_iob();
-        for(unsigned int i = 0; i < rjo.size(); i++)
-        {
-          write_pgain(i, p_vec[i]);
-          write_dgain(i, d_vec[i]);
-        }
-        close_iob();
-#else
-        // if not on real robot
-        m_pgainsOut.data.length(rjo.size());
-        m_dgainsOut.data.length(rjo.size());
-        for(unsigned int i = 0; i < rjo.size(); i++)
-        {
-          m_pgainsOut.data[i] = p_vec[i];
-          m_dgainsOut.data[i] = d_vec[i];
-        }
-
-        coil::TimeValue coiltm(coil::gettimeofday());
-        RTC::Time tm;
-        tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
-        tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
-        m_pgainsOut.tm = tm;
-        m_dgainsOut.tm = tm;
-        m_pgainsOutOut.write();
-        m_dgainsOutOut.write();
-#endif
-        return true;
+      [this, setPDGains](const std::vector<double> & p_vec, const std::vector<double> & d_vec) {
+        return setPDGains(p_vec, d_vec);
       });
-  controller.controller().datastore().make_call(controller.robot().name() + "::GetPDGains",
-                                                [this](std::vector<double> & p_vec, std::vector<double> & d_vec) {
-                                                  p_vec.resize(0);
-                                                  d_vec.resize(0);
-#ifdef USE_IOB
-                                                  // if on real robot
-                                                  open_iob();
-                                                  size_t num_joints = number_of_joints();
-                                                  p_vec.resize(num_joints);
-                                                  d_vec.resize(num_joints);
-                                                  for(unsigned int i = 0; i < num_joints; i++)
-                                                  {
-                                                    read_pgain(i, &p_vec[i]);
-                                                    read_dgain(i, &d_vec[i]);
-                                                  }
-                                                  close_iob();
-#else
-                                                  // if not on real robot
-                                                  m_pgainsInIn.read();
-                                                  m_dgainsInIn.read();
-                                                  for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
-                                                  {
-                                                    p_vec.push_back(m_pgainsIn.data[i]);
-                                                    d_vec.push_back(m_dgainsIn.data[i]);
-                                                  }
-#endif
-                                                  return true;
-                                                });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::GetPDGains",
+      [this, getPDGains](std::vector<double> & p_vec, std::vector<double> & d_vec) {
+        return getPDGains(p_vec, d_vec);
+      });
 }
 
 MCControl::~MCControl() {}
