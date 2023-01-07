@@ -154,8 +154,6 @@ MCControl::~MCControl() {}
 
 bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> & d_vec)
 {
-  p_vec.resize(0);
-  d_vec.resize(0);
 #ifdef USE_IOB
   // if on real robot
   open_iob();
@@ -172,11 +170,11 @@ bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> &
   // if not on real robot
   m_pgainsInIn.read();
   m_dgainsInIn.read();
-  for(unsigned int i = 0; i < m_pgainsIn.data.length(); i++)
-  {
-    p_vec.push_back(m_pgainsIn.data[i]);
-    d_vec.push_back(m_dgainsIn.data[i]);
-  }
+  size_t num_joints = m_pgainsIn.data.length();
+  p_vec.resize(num_joints);
+  d_vec.resize(num_joints);
+  std::memcpy(&p_vec[0], &m_pgainsIn.data[0], num_joints * sizeof(double));
+  std::memcpy(&d_vec[0], &m_dgainsIn.data[0], num_joints * sizeof(double));
 #endif
   return true;
 }
@@ -195,8 +193,8 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
 #ifdef USE_IOB
   // if on real robot
   open_iob();
-  read_pgain(i, &p);
-  read_dgain(i, &d);
+  read_pgain(rjo_idx, &p);
+  read_dgain(rjo_idx, &d);
   close_iob();
 #else
   // if not on real robot
