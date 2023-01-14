@@ -205,7 +205,8 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
   double solver_dt = controller.controller().solver().dt();
   if(loop_dt.count() > 1.5 * 1000 * solver_dt)
   {
-    mc_rtc::log::warning("[mc_openrtm] LoopDt exceeds expected time: {}ms (expected: {}ms)", loop_dt.count(), 1000 * solver_dt);
+    mc_rtc::log::warning("[mc_openrtm] LoopDt exceeds expected time: {}ms (expected: {}ms)", loop_dt.count(),
+                         1000 * solver_dt);
   }
   prev_start_t = start_t;
 
