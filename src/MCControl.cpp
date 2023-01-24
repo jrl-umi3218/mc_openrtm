@@ -155,28 +155,31 @@ MCControl::~MCControl() {}
 
 bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> & d_vec)
 {
-#ifdef USE_IOB
-  // if on real robot
-  open_iob();
-  size_t num_joints = number_of_joints();
-  p_vec.resize(num_joints);
-  d_vec.resize(num_joints);
-  for(unsigned int i = 0; i < num_joints; i++)
+  if(!m_is_simulation)
   {
-    read_pgain(i, &p_vec[i]);
-    read_dgain(i, &d_vec[i]);
+    // if on real robot
+    open_iob();
+    size_t num_joints = number_of_joints();
+    p_vec.resize(num_joints);
+    d_vec.resize(num_joints);
+    for(unsigned int i = 0; i < num_joints; i++)
+      {
+        read_pgain(i, &p_vec[i]);
+        read_dgain(i, &d_vec[i]);
+      }
+    close_iob();
   }
-  close_iob();
-#else
-  // if not on real robot
-  m_pgainsInIn.read();
-  m_dgainsInIn.read();
-  size_t num_joints = m_pgainsIn.data.length();
-  p_vec.resize(num_joints);
-  d_vec.resize(num_joints);
-  std::memcpy(&p_vec[0], &m_pgainsIn.data[0], num_joints * sizeof(double));
-  std::memcpy(&d_vec[0], &m_dgainsIn.data[0], num_joints * sizeof(double));
-#endif
+  else
+  {
+    // if in simulation
+    m_pgainsInIn.read();
+    m_dgainsInIn.read();
+    size_t num_joints = m_pgainsIn.data.length();
+    p_vec.resize(num_joints);
+    d_vec.resize(num_joints);
+    std::memcpy(&p_vec[0], &m_pgainsIn.data[0], num_joints * sizeof(double));
+    std::memcpy(&d_vec[0], &m_dgainsIn.data[0], num_joints * sizeof(double));
+  }
   return true;
 }
 
@@ -191,19 +194,22 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
     return false;
   }
   int rjo_idx = std::distance(rjo.begin(), rjo_it);
-#ifdef USE_IOB
-  // if on real robot
-  open_iob();
-  read_pgain(rjo_idx, &p);
-  read_dgain(rjo_idx, &d);
-  close_iob();
-#else
-  // if not on real robot
-  m_pgainsInIn.read();
-  m_dgainsInIn.read();
-  p = m_pgainsIn.data[rjo_idx];
-  d = m_dgainsIn.data[rjo_idx];
-#endif
+  if(!m_is_simulation)
+  {
+    // if on real robot
+    open_iob();
+    read_pgain(rjo_idx, &p);
+    read_dgain(rjo_idx, &d);
+    close_iob();
+  }
+  else
+  {
+    // if in simulation
+    m_pgainsInIn.read();
+    m_dgainsInIn.read();
+    p = m_pgainsIn.data[rjo_idx];
+    d = m_dgainsIn.data[rjo_idx];
+  }
   return true;
 }
 
@@ -219,34 +225,37 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
     return false;
   }
 
-#ifdef USE_IOB
-  // if on real robot
-  open_iob();
-  for(unsigned int i = 0; i < rjo.size(); i++)
+  if(!m_is_simulation)
   {
-    write_pgain(i, p_vec[i]);
-    write_dgain(i, d_vec[i]);
+    // if on real robot
+    open_iob();
+    for(unsigned int i = 0; i < rjo.size(); i++)
+      {
+        write_pgain(i, p_vec[i]);
+        write_dgain(i, d_vec[i]);
+      }
+    close_iob();
   }
-  close_iob();
-#else
-  // if not on real robot
-  m_pgainsOut.data.length(rjo.size());
-  m_dgainsOut.data.length(rjo.size());
-  for(unsigned int i = 0; i < rjo.size(); i++)
+  else
   {
-    m_pgainsOut.data[i] = p_vec[i];
-    m_dgainsOut.data[i] = d_vec[i];
-  }
+    // if in simulation
+    m_pgainsOut.data.length(rjo.size());
+    m_dgainsOut.data.length(rjo.size());
+    for(unsigned int i = 0; i < rjo.size(); i++)
+      {
+        m_pgainsOut.data[i] = p_vec[i];
+        m_dgainsOut.data[i] = d_vec[i];
+      }
 
-  coil::TimeValue coiltm(coil::gettimeofday());
-  RTC::Time tm;
-  tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
-  tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
-  m_pgainsOut.tm = tm;
-  m_dgainsOut.tm = tm;
-  m_pgainsOutOut.write();
-  m_dgainsOutOut.write();
-#endif
+    coil::TimeValue coiltm(coil::gettimeofday());
+    RTC::Time tm;
+    tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+    m_pgainsOut.tm = tm;
+    m_dgainsOut.tm = tm;
+    m_pgainsOutOut.write();
+    m_dgainsOutOut.write();
+  }
   return true;
 }
 
@@ -261,36 +270,39 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
     return false;
   }
   int rjo_idx = std::distance(rjo.begin(), rjo_it);
-#ifdef USE_IOB
-  // if on real robot
-  open_iob();
-  write_pgain(rjo_idx, p);
-  write_dgain(rjo_idx, d);
-  close_iob();
-#else
-  // if not on real robot
-  std::vector<double> p_vec;
-  std::vector<double> d_vec;
-  getServoGains(p_vec, d_vec);
-  p_vec[rjo_idx] = p;
-  d_vec[rjo_idx] = d;
-  m_pgainsOut.data.length(rjo.size());
-  m_dgainsOut.data.length(rjo.size());
-  for(unsigned int i = 0; i < rjo.size(); i++)
+  if(!m_is_simulation)
   {
-    m_pgainsOut.data[i] = p_vec[i];
-    m_dgainsOut.data[i] = d_vec[i];
+    // if on real robot
+    open_iob();
+    write_pgain(rjo_idx, p);
+    write_dgain(rjo_idx, d);
+    close_iob();
   }
+  else
+  {
+    // if in simulation
+    std::vector<double> p_vec;
+    std::vector<double> d_vec;
+    getServoGains(p_vec, d_vec);
+    p_vec[rjo_idx] = p;
+    d_vec[rjo_idx] = d;
+    m_pgainsOut.data.length(rjo.size());
+    m_dgainsOut.data.length(rjo.size());
+    for(unsigned int i = 0; i < rjo.size(); i++)
+      {
+        m_pgainsOut.data[i] = p_vec[i];
+        m_dgainsOut.data[i] = d_vec[i];
+      }
 
-  coil::TimeValue coiltm(coil::gettimeofday());
-  RTC::Time tm;
-  tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
-  tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
-  m_pgainsOut.tm = tm;
-  m_dgainsOut.tm = tm;
-  m_pgainsOutOut.write();
-  m_dgainsOutOut.write();
-#endif
+    coil::TimeValue coiltm(coil::gettimeofday());
+    RTC::Time tm;
+    tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+    m_pgainsOut.tm = tm;
+    m_dgainsOut.tm = tm;
+    m_pgainsOutOut.write();
+    m_dgainsOutOut.write();
+  }
   return true;
 }
 

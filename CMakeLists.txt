@@ -34,5 +34,3 @@ add_subdirectory(idl)
 
 add_subdirectory(projects)
 add_subdirectory(src)
-
-option(REAL_ROBOT "If this is ON, mc_openrtm will attempt to change servo PD gains through IOB." OFF)
