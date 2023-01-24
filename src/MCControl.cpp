@@ -157,17 +157,29 @@ bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> &
 {
   if(!m_is_simulation)
   {
-    // if on real robot
-    open_iob();
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    }
     size_t num_joints = number_of_joints();
     p_vec.resize(num_joints);
     d_vec.resize(num_joints);
+
     for(unsigned int i = 0; i < num_joints; i++)
+    {
+      if(!read_pgain(i, &p_vec[i]))
       {
-        read_pgain(i, &p_vec[i]);
-        read_dgain(i, &d_vec[i]);
-      }
-    close_iob();
+        return failed_iob("read_pgain for joint " + i, __func__);
+      };
+      if(!read_dgain(i, &d_vec[i]))
+      {
+        return failed_iob("read_dgain for joint " + i, __func__);
+      };
+    }
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    }
   }
   else
   {
@@ -197,10 +209,22 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
   if(!m_is_simulation)
   {
     // if on real robot
-    open_iob();
-    read_pgain(rjo_idx, &p);
-    read_dgain(rjo_idx, &d);
-    close_iob();
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    };
+    if(!read_pgain(rjo_idx, &p))
+    {
+      return failed_iob("read_pgain for joint " + rjo_idx, "getServoGainsByName");
+    };
+    if(!read_dgain(rjo_idx, &d))
+    {
+      return failed_iob("read_dgain for joint " + rjo_idx, "getServoGainsByName");
+    };
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    };
   }
   else
   {
@@ -228,13 +252,26 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
   if(!m_is_simulation)
   {
     // if on real robot
-    open_iob();
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    };
     for(unsigned int i = 0; i < rjo.size(); i++)
+    {
+      if(!write_pgain(i, p_vec[i]))
       {
-        write_pgain(i, p_vec[i]);
-        write_dgain(i, d_vec[i]);
-      }
-    close_iob();
+        return failed_iob("write_pgain for joint " + i, __func__);
+      };
+      if(!write_dgain(i, d_vec[i]))
+      {
+        return failed_iob("write_dgain for joint " + i, __func__);
+      };
+    }
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    };
+    ;
   }
   else
   {
@@ -242,10 +279,10 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
     m_pgainsOut.data.length(rjo.size());
     m_dgainsOut.data.length(rjo.size());
     for(unsigned int i = 0; i < rjo.size(); i++)
-      {
-        m_pgainsOut.data[i] = p_vec[i];
-        m_dgainsOut.data[i] = d_vec[i];
-      }
+    {
+      m_pgainsOut.data[i] = p_vec[i];
+      m_dgainsOut.data[i] = d_vec[i];
+    }
 
     coil::TimeValue coiltm(coil::gettimeofday());
     RTC::Time tm;
@@ -273,10 +310,23 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
   if(!m_is_simulation)
   {
     // if on real robot
-    open_iob();
-    write_pgain(rjo_idx, p);
-    write_dgain(rjo_idx, d);
-    close_iob();
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    };
+    if(!write_pgain(rjo_idx, p))
+    {
+      return failed_iob("write_pgain for joint " + rjo_idx, "setServoGainsByName");
+    };
+    if(!write_dgain(rjo_idx, d))
+    {
+      return failed_iob("write_dgain for joint " + rjo_idx, "setServoGainsByName");
+    };
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    };
+    ;
   }
   else
   {
@@ -289,10 +339,10 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
     m_pgainsOut.data.length(rjo.size());
     m_dgainsOut.data.length(rjo.size());
     for(unsigned int i = 0; i < rjo.size(); i++)
-      {
-        m_pgainsOut.data[i] = p_vec[i];
-        m_dgainsOut.data[i] = d_vec[i];
-      }
+    {
+      m_pgainsOut.data[i] = p_vec[i];
+      m_dgainsOut.data[i] = d_vec[i];
+    }
 
     coil::TimeValue coiltm(coil::gettimeofday());
     RTC::Time tm;
