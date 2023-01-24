@@ -124,6 +124,7 @@ def init(hostname=socket.gethostname()):
 def startMCControl():
     global mc
     mc.setProperty("is_enabled", "1")
+    mc.setProperty("is_simulation", "1")
 
 def connectMCControl():
     connectPorts(sh.port("qOut"), mc.port("qInit"))
