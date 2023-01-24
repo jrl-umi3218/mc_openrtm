@@ -242,10 +242,14 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
   const auto & rjo = controller.robot().refJointOrder();
   if(p_vec.size() != rjo.size())
   {
+    mc_rtc::log::critical("[mc_openrtm] {} failed! p_vec is size {} but should be {}.", __func__, p_vec.size(),
+                          rjo.size());
     return false;
   }
   if(d_vec.size() != rjo.size())
   {
+    mc_rtc::log::critical("[mc_openrtm] {} failed! d_vec is size {} but should be {}.", __func__, d_vec.size(),
+                          rjo.size());
     return false;
   }
 
