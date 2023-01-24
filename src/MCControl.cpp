@@ -50,6 +50,7 @@ static const char* mccontrol_spec[] =
     // Configuration variables
     "conf.default.timeStep", "0.002",
     "conf.default.is_enabled", "0",
+    "conf.default.is_simulation", "0",
     ""
   };
 // </rtc-template>
@@ -70,7 +71,7 @@ MCControl::MCControl(RTC::Manager* manager)
     // <rtc-template block="initializer">
   : RTC::DataFlowComponentBase(manager),
     m_timeStep(0.002),
-    m_enabled(false),
+    m_is_simulation(false),
     m_qInIn("qIn", m_qIn),
     m_alphaInIn("alphaIn", m_alphaIn),
     m_qInitIn("qInit", m_qInit),
@@ -179,6 +180,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
   // Bind variables and configuration variable
   bindParameter("timeStep", m_timeStep, "0.002");
   bindParameter("is_enabled", controller.running, "0");
+  bindParameter("is_simulation", m_is_simulation, "0");
 
   // </rtc-template>
   mc_rtc::log::info("MCControl::onInitialize() finished");
@@ -203,7 +205,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
   auto start_t = steady_clock::now();
   loop_dt = start_t - prev_start_t;
   double solver_dt = controller.controller().solver().dt();
-  if(loop_dt.count() > 1.5 * 1000 * solver_dt)
+  if(!m_is_simulation && loop_dt.count() > 1.5 * 1000 * solver_dt)
   {
     mc_rtc::log::warning("[mc_openrtm] LoopDt exceeds expected time: {}ms (expected: {}ms)", loop_dt.count(),
                          1000 * solver_dt);

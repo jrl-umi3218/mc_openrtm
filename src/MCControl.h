@@ -112,7 +112,7 @@ protected:
   // Configuration variable declaration
   // <rtc-template block="config_declare">
   double m_timeStep;
-  bool m_enabled;
+  bool m_is_simulation;
 
   // </rtc-template>
 
