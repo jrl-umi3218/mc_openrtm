@@ -215,10 +215,6 @@ protected:
   bool getServoGainsByName(const std::string & jn, double & p, double & d);
   bool setServoGains(const std::vector<double> & p_vec, const std::vector<double> & d_vec);
   bool setServoGainsByName(const std::string & jn, double p, double d);
-  constexpr static auto failed_iob = [&](const char * s, const char * n) {
-    mc_rtc::log::critical("[mc_openrtm] Call to {} failed! Cannot execute {}.", s, n);
-    return false;
-  };
 
 public:
   bool init;

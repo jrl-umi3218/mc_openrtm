@@ -57,6 +57,12 @@ static const char* mccontrol_spec[] =
   };
 // </rtc-template>
 
+static bool failed_iob(const char * s, const char * n) {
+  mc_rtc::log::critical("[mc_openrtm] Call to {} failed! Cannot execute {}.", s, n);
+  return false;
+};
+
+
 namespace
 {
   bool init_controller()
