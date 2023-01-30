@@ -645,6 +645,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
           controller.init(qIn);
         }
         controller.controller().logger().addLogEntry("perf_LoopDt", [&]() { return loop_dt.count(); });
+        controller.controller().logger().addLogEntry("cmdTau", [&]() { return cmdTauIn; });
         init = true;
       }
       if(controller.run())
