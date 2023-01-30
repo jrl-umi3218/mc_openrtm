@@ -148,6 +148,9 @@ protected:
   TimedDoubleSeq m_taucIn;
   InPort<TimedDoubleSeq> m_taucInIn;
   std::vector<double> taucIn;
+  TimedDoubleSeq m_cmdTauIn;
+  InPort<TimedDoubleSeq> m_cmdTauInIn;
+  std::vector<double> cmdTauIn;
   TimedDoubleSeq m_pgainsIn;
   InPort<TimedDoubleSeq> m_pgainsInIn;
   TimedDoubleSeq m_dgainsIn;

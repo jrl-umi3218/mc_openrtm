@@ -90,6 +90,7 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_cmdTauInIn("cmdTauIn", m_cmdTauIn),
     m_motorTempNames(),
     m_motorTempToRJOIndex(),
     m_motorTempInIn("motorTempIn", m_motorTempIn),
@@ -382,6 +383,7 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  addInPort("cmdTauIn", m_cmdTauInIn);
   addInPort("pgainsIn", m_pgainsInIn);
   addInPort("dgainsIn", m_dgainsInIn);
   addInPort("motorTempIn", m_motorTempInIn);
@@ -556,6 +558,15 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
     for(unsigned int i = 0; i < static_cast<unsigned int>(m_taucIn.data.length()); ++i)
     {
       taucIn[i] = m_taucIn.data[i];
+    }
+  }
+  if(m_cmdTauInIn.isNew())
+  {
+    m_cmdTauInIn.read();
+    cmdTauIn.resize(m_cmdTauIn.data.length());
+    for(unsigned int i = 0; i < static_cast<unsigned int>(m_cmdTauIn.data.length()); ++i)
+    {
+      cmdTauIn[i] = m_cmdTauIn.data[i];
     }
   }
   if(m_qInitIn.isNew())
