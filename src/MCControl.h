@@ -148,6 +148,13 @@ protected:
   TimedDoubleSeq m_taucIn;
   InPort<TimedDoubleSeq> m_taucInIn;
   std::vector<double> taucIn;
+  TimedDoubleSeq m_cmdTauIn;
+  InPort<TimedDoubleSeq> m_cmdTauInIn;
+  std::vector<double> cmdTauIn;
+  TimedDoubleSeq m_pgainsIn;
+  InPort<TimedDoubleSeq> m_pgainsInIn;
+  TimedDoubleSeq m_dgainsIn;
+  InPort<TimedDoubleSeq> m_dgainsInIn;
 
   std::vector<std::string> m_motorTempNames;
   std::vector<size_t> m_motorTempToRJOIndex;
@@ -182,6 +189,10 @@ protected:
   OutPort<TimedPoint3D> m_pOutOut;
   TimedOrientation3D m_rpyOut;
   OutPort<TimedOrientation3D> m_rpyOutOut;
+  TimedDoubleSeq m_pgainsOut;
+  OutPort<TimedDoubleSeq> m_pgainsOutOut;
+  TimedDoubleSeq m_dgainsOut;
+  OutPort<TimedDoubleSeq> m_dgainsOutOut;
 
   // </rtc-template>
 
@@ -201,6 +212,12 @@ protected:
   // <rtc-template block="consumer_declare">
 
   // </rtc-template>
+
+  // methods for reading/writing pd gains
+  bool getServoGains(std::vector<double> & p_vec, std::vector<double> & d_vec);
+  bool getServoGainsByName(const std::string & jn, double & p, double & d);
+  bool setServoGains(const std::vector<double> & p_vec, const std::vector<double> & d_vec);
+  bool setServoGainsByName(const std::string & jn, double p, double d);
 
 public:
   bool init;

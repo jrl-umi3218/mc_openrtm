@@ -29,6 +29,8 @@
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
 
+#include "hrpsys/io/iob.h"
+
 using steady_clock = std::chrono::steady_clock;
 
 // Module specification
@@ -54,6 +56,12 @@ static const char* mccontrol_spec[] =
     ""
   };
 // </rtc-template>
+
+static bool failed_iob(const char * s, const char * n) {
+  mc_rtc::log::critical("[mc_openrtm] Call to {} failed! Cannot execute {}.", s, n);
+  return false;
+};
+
 
 namespace
 {
@@ -82,16 +90,21 @@ MCControl::MCControl(RTC::Manager* manager)
     m_poseInIn("poseIn", m_poseIn),
     m_velInIn("velIn", m_velIn),
     m_taucInIn("taucIn", m_taucIn),
+    m_cmdTauInIn("cmdTauIn", m_cmdTauIn),
     m_motorTempNames(),
     m_motorTempToRJOIndex(),
     m_motorTempInIn("motorTempIn", m_motorTempIn),
     m_basePoseInIn("basePoseIn", m_basePoseIn),
     m_baseVelInIn("baseVelIn", m_baseVelIn),
     m_baseAccInIn("baseAccIn", m_baseAccIn),
+    m_pgainsInIn("pgainsIn", m_pgainsIn),
+    m_dgainsInIn("dgainsIn", m_dgainsIn),
     m_wrenchesNames(),
     m_qOutOut("qOut", m_qOut),
     m_pOutOut("pOut", m_pOut),
     m_rpyOutOut("rpyOut", m_rpyOut),
+    m_pgainsOutOut("pgainsOut", m_pgainsOut),
+    m_dgainsOutOut("dgainsOut", m_dgainsOut),
     m_MCControlServicePortPort("MCControlServicePort"),
     m_service0(this),
     init(init_controller())
@@ -129,9 +142,230 @@ MCControl::MCControl(RTC::Manager* manager)
           "RobotModule contains a JointSensor at {} but it was not found in the refJointOrder.", js.joint());
     }
   }
+
+  // create datastore calls for reading/writing servo pd gains
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::GetPDGains",
+      [this](std::vector<double> & p, std::vector<double> & d) { return getServoGains(p, d); });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::GetPDGainsByName",
+      [this](const std::string & jn, double & p, double & d) { return getServoGainsByName(jn, p, d); });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::SetPDGains",
+      [this](const std::vector<double> & p, const std::vector<double> & d) { return setServoGains(p, d); });
+  controller.controller().datastore().make_call(
+      controller.robot().name() + "::SetPDGainsByName",
+      [this](const std::string & jn, double p, double d) { return setServoGainsByName(jn, p, d); });
 }
 
 MCControl::~MCControl() {}
+
+bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> & d_vec)
+{
+  if(!m_is_simulation)
+  {
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    }
+    size_t num_joints = number_of_joints();
+    p_vec.resize(num_joints);
+    d_vec.resize(num_joints);
+
+    for(unsigned int i = 0; i < num_joints; i++)
+    {
+      if(!read_pgain(i, &p_vec[i]))
+      {
+        return failed_iob("read_pgain for joint " + i, __func__);
+      };
+      if(!read_dgain(i, &d_vec[i]))
+      {
+        return failed_iob("read_dgain for joint " + i, __func__);
+      };
+    }
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    }
+  }
+  else
+  {
+    // if in simulation
+    m_pgainsInIn.read();
+    m_dgainsInIn.read();
+    size_t num_joints = m_pgainsIn.data.length();
+    p_vec.resize(num_joints);
+    d_vec.resize(num_joints);
+    std::memcpy(&p_vec[0], &m_pgainsIn.data[0], num_joints * sizeof(double));
+    std::memcpy(&d_vec[0], &m_dgainsIn.data[0], num_joints * sizeof(double));
+  }
+  return true;
+}
+
+bool MCControl::getServoGainsByName(const std::string & jn, double & p, double & d)
+{
+  const auto & rjo = controller.robot().refJointOrder();
+  auto rjo_it = std::find(rjo.begin(), rjo.end(), jn);
+  if(rjo_it == rjo.end())
+  {
+    mc_rtc::log::warning("[mc_openrtm] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
+                         controller.robot().name(), jn);
+    return false;
+  }
+  int rjo_idx = std::distance(rjo.begin(), rjo_it);
+  if(!m_is_simulation)
+  {
+    // if on real robot
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    };
+    if(!read_pgain(rjo_idx, &p))
+    {
+      return failed_iob("read_pgain for joint " + rjo_idx, "getServoGainsByName");
+    };
+    if(!read_dgain(rjo_idx, &d))
+    {
+      return failed_iob("read_dgain for joint " + rjo_idx, "getServoGainsByName");
+    };
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    };
+  }
+  else
+  {
+    // if in simulation
+    m_pgainsInIn.read();
+    m_dgainsInIn.read();
+    p = m_pgainsIn.data[rjo_idx];
+    d = m_dgainsIn.data[rjo_idx];
+  }
+  return true;
+}
+
+bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vector<double> & d_vec)
+{
+  const auto & rjo = controller.robot().refJointOrder();
+  if(p_vec.size() != rjo.size())
+  {
+    mc_rtc::log::critical("[mc_openrtm] {} failed! p_vec is size {} but should be {}.", __func__, p_vec.size(),
+                          rjo.size());
+    return false;
+  }
+  if(d_vec.size() != rjo.size())
+  {
+    mc_rtc::log::critical("[mc_openrtm] {} failed! d_vec is size {} but should be {}.", __func__, d_vec.size(),
+                          rjo.size());
+    return false;
+  }
+
+  if(!m_is_simulation)
+  {
+    // if on real robot
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    };
+    for(unsigned int i = 0; i < rjo.size(); i++)
+    {
+      if(!write_pgain(i, p_vec[i]))
+      {
+        return failed_iob("write_pgain for joint " + i, __func__);
+      };
+      if(!write_dgain(i, d_vec[i]))
+      {
+        return failed_iob("write_dgain for joint " + i, __func__);
+      };
+    }
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    };
+    ;
+  }
+  else
+  {
+    // if in simulation
+    m_pgainsOut.data.length(rjo.size());
+    m_dgainsOut.data.length(rjo.size());
+    for(unsigned int i = 0; i < rjo.size(); i++)
+    {
+      m_pgainsOut.data[i] = p_vec[i];
+      m_dgainsOut.data[i] = d_vec[i];
+    }
+
+    coil::TimeValue coiltm(coil::gettimeofday());
+    RTC::Time tm;
+    tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+    m_pgainsOut.tm = tm;
+    m_dgainsOut.tm = tm;
+    m_pgainsOutOut.write();
+    m_dgainsOutOut.write();
+  }
+  return true;
+}
+
+bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
+{
+  const auto & rjo = controller.robot().refJointOrder();
+  auto rjo_it = std::find(rjo.begin(), rjo.end(), jn);
+  if(rjo_it == rjo.end())
+  {
+    mc_rtc::log::warning("[mc_openrtm] {}::SetPDGainsByName failed. Joint {} not found in ref_joint_order.",
+                         controller.robot().name(), jn);
+    return false;
+  }
+  int rjo_idx = std::distance(rjo.begin(), rjo_it);
+  if(!m_is_simulation)
+  {
+    // if on real robot
+    if(!open_iob())
+    {
+      return failed_iob("open_iob", __func__);
+    };
+    if(!write_pgain(rjo_idx, p))
+    {
+      return failed_iob("write_pgain for joint " + rjo_idx, "setServoGainsByName");
+    };
+    if(!write_dgain(rjo_idx, d))
+    {
+      return failed_iob("write_dgain for joint " + rjo_idx, "setServoGainsByName");
+    };
+    if(!close_iob())
+    {
+      return failed_iob("close_iob", __func__);
+    };
+    ;
+  }
+  else
+  {
+    // if in simulation
+    std::vector<double> p_vec;
+    std::vector<double> d_vec;
+    getServoGains(p_vec, d_vec);
+    p_vec[rjo_idx] = p;
+    d_vec[rjo_idx] = d;
+    m_pgainsOut.data.length(rjo.size());
+    m_dgainsOut.data.length(rjo.size());
+    for(unsigned int i = 0; i < rjo.size(); i++)
+    {
+      m_pgainsOut.data[i] = p_vec[i];
+      m_dgainsOut.data[i] = d_vec[i];
+    }
+
+    coil::TimeValue coiltm(coil::gettimeofday());
+    RTC::Time tm;
+    tm.sec = static_cast<CORBA::ULong>(coiltm.sec());
+    tm.nsec = static_cast<CORBA::ULong>(coiltm.usec()) * 1000;
+    m_pgainsOut.tm = tm;
+    m_dgainsOut.tm = tm;
+    m_pgainsOutOut.write();
+    m_dgainsOutOut.write();
+  }
+  return true;
+}
 
 RTC::ReturnCode_t MCControl::onInitialize()
 {
@@ -149,6 +383,9 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addInPort("poseIn", m_poseInIn);
   addInPort("velIn", m_velInIn);
   addInPort("taucIn", m_taucInIn);
+  addInPort("cmdTauIn", m_cmdTauInIn);
+  addInPort("pgainsIn", m_pgainsInIn);
+  addInPort("dgainsIn", m_dgainsInIn);
   addInPort("motorTempIn", m_motorTempInIn);
   // Floating base
   addInPort("basePoseIn", m_basePoseInIn);
@@ -165,6 +402,8 @@ RTC::ReturnCode_t MCControl::onInitialize()
   addOutPort("qOut", m_qOutOut);
   addOutPort("pOut", m_pOutOut);
   addOutPort("rpyOut", m_rpyOutOut);
+  addOutPort("pgainsOut", m_pgainsOutOut);
+  addOutPort("dgainsOut", m_dgainsOutOut);
 
   // Set service provider to Ports
   m_MCControlServicePortPort.registerProvider("service0", "MCControlService", m_service0);
@@ -321,6 +560,15 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
       taucIn[i] = m_taucIn.data[i];
     }
   }
+  if(m_cmdTauInIn.isNew())
+  {
+    m_cmdTauInIn.read();
+    cmdTauIn.resize(m_cmdTauIn.data.length());
+    for(unsigned int i = 0; i < static_cast<unsigned int>(m_cmdTauIn.data.length()); ++i)
+    {
+      cmdTauIn[i] = m_cmdTauIn.data[i];
+    }
+  }
   if(m_qInitIn.isNew())
   {
     m_qInitIn.read();
@@ -397,6 +645,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
           controller.init(qIn);
         }
         controller.controller().logger().addLogEntry("perf_LoopDt", [&]() { return loop_dt.count(); });
+        controller.controller().logger().addLogEntry("cmdTau", [&]() { return cmdTauIn; });
         init = true;
       }
       if(controller.run())
