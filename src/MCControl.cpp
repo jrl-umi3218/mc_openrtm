@@ -143,6 +143,18 @@ MCControl::MCControl(RTC::Manager* manager)
     }
   }
 
+  // confirm mc-rtc timestep is same as IOB timestep
+  if(!m_is_simulation)
+  {
+    long iob_ts = get_signal_period();
+    if(fabs(iob_ts / 1e9 - controller.controller().timeStep) > 1e-6)
+    {
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "[mc_openrtm] Missmatch between IOB timestep ({}) and mc_rtc ({}).", iob_ts,
+          controller.controller().timeStep);
+    }
+  }
+
   // create datastore calls for reading/writing servo pd gains
   controller.controller().datastore().make_call(
       controller.robot().name() + "::GetPDGains",
