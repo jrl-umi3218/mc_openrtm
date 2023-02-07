@@ -150,8 +150,8 @@ MCControl::MCControl(RTC::Manager* manager)
     {
       failed_iob("open_iob", "(mc_openrtm constructor)");
     }
-    long iob_ts = get_signal_period();
-    if(fabs(iob_ts / 1e9 - controller.controller().timeStep) > 1e-6)
+    double iob_ts = get_signal_period() / 1e9;
+    if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
     {
       mc_rtc::log::error_and_throw<std::runtime_error>(
           "[mc_openrtm] Missmatch between IOB timestep ({}) and mc_rtc ({}).", iob_ts,
