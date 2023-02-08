@@ -143,26 +143,6 @@ MCControl::MCControl(RTC::Manager* manager)
     }
   }
 
-  // confirm mc-rtc timestep is same as IOB timestep
-  if(!m_is_simulation)
-  {
-    if(!open_iob())
-    {
-      failed_iob("open_iob", "(mc_openrtm constructor)");
-    }
-    double iob_ts = get_signal_period() / 1e9;
-    if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
-    {
-      mc_rtc::log::error_and_throw<std::runtime_error>(
-          "[mc_openrtm] Missmatch between IOB timestep ({}) and mc_rtc ({}).", iob_ts,
-          controller.controller().timeStep);
-    }
-    if(!close_iob())
-    {
-      failed_iob("open_iob", "(mc_openrtm constructor)");
-    }
-  }
-
   // create datastore calls for reading/writing servo pd gains
   controller.controller().datastore().make_call(
       controller.robot().name() + "::GetPDGains",
@@ -651,6 +631,25 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
 
     if(controller.running)
     {
+      // confirm mc-rtc timestep is same as IOB timestep
+      if(!m_is_simulation)
+      {
+        if(!open_iob())
+        {
+          failed_iob("open_iob", "(mc_openrtm constructor)");
+        }
+        double iob_ts = get_signal_period() / 1e9;
+        if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
+        {
+          mc_rtc::log::error_and_throw<std::runtime_error>(
+              "[mc_openrtm] Missmatch between IOB timestep ({}) and mc_rtc ({}).", iob_ts,
+              controller.controller().timeStep);
+        }
+        if(!close_iob())
+        {
+          failed_iob("open_iob", "(mc_openrtm constructor)");
+        }
+      }
       if(!init)
       {
         mc_rtc::log::info("Init controller");
