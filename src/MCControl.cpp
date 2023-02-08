@@ -637,6 +637,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         if(!open_iob())
         {
           failed_iob("open_iob", "(mc_openrtm constructor)");
+          mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Cannot verify timesteps of IOB and mc-rtc.");
         }
         double iob_ts = get_signal_period() / 1e9;
         if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
@@ -647,7 +648,8 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         }
         if(!close_iob())
         {
-          failed_iob("open_iob", "(mc_openrtm constructor)");
+          failed_iob("close_iob", "(mc_openrtm constructor)");
+          mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
         }
       }
       if(!init)
