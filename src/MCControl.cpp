@@ -643,7 +643,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
         {
           mc_rtc::log::error_and_throw<std::runtime_error>(
-              "[mc_openrtm] Missmatch between IOB timestep ({}) and mc_rtc ({}).", iob_ts,
+              "[mc_openrtm] Missmatch between IOB timestep ({}ms) and mc_rtc ({}ms).", iob_ts,
               controller.controller().timeStep);
         }
         if(!close_iob())
