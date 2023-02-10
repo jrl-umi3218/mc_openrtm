@@ -631,30 +631,32 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
 
     if(controller.running)
     {
-      // confirm mc-rtc timestep is same as IOB timestep
-      if(!m_is_simulation)
-      {
-        if(!open_iob())
-        {
-          failed_iob("open_iob", "(mc_openrtm constructor)");
-          mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Cannot verify timesteps of IOB and mc-rtc.");
-        }
-        double iob_ts = get_signal_period() / 1e9;
-        if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
-        {
-          mc_rtc::log::error_and_throw<std::runtime_error>(
-              "[mc_openrtm] Missmatch between IOB timestep ({}ms) and mc_rtc ({}ms).", iob_ts,
-              controller.controller().timeStep);
-        }
-        if(!close_iob())
-        {
-          failed_iob("close_iob", "(mc_openrtm constructor)");
-          mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
-        }
-      }
       if(!init)
       {
         mc_rtc::log::info("Init controller");
+        // confirm mc-rtc timestep is same as IOB timestep
+        if(!m_is_simulation)
+        {
+          if(!open_iob())
+          {
+            failed_iob("open_iob", "(mc_openrtm constructor)");
+            mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Cannot verify timesteps of IOB and mc-rtc.");
+          }
+          double iob_ts = get_signal_period() / 1e9;
+          if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
+          {
+            mc_rtc::log::error_and_throw<std::runtime_error>(
+                "[mc_openrtm] Missmatch between IOB timestep ({}s) and mc_rtc ({}s).", iob_ts,
+                controller.controller().timeStep);
+          }
+          if(!close_iob())
+          {
+            failed_iob("close_iob", "(mc_openrtm constructor)");
+            mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
+          }
+          mc_rtc::log::info("[mc_openrtm] IOB timestep = {}s and mc_rtc {}s.", iob_ts,
+                            controller.controller().timeStep);
+        }
         if(qInit.size() == qIn.size())
         {
           controller.init(qInit);
@@ -666,7 +668,7 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
           controller.init(qIn);
         }
         controller.controller().logger().addLogEntry("perf_LoopDt", [&]() { return loop_dt.count(); });
-        controller.controller().logger().addLogEntry("cmdTau", [&]() { return cmdTauIn; });
+        controller.controller().logger().addLogEntry("tauCmd", [&]() { return cmdTauIn; });
         init = true;
       }
       if(controller.run())
