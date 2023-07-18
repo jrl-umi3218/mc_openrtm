@@ -439,7 +439,7 @@ OpenRTM:
   "deleteUnmanagedRTCsOnStartingSimulation": true
 Python: 
   "moduleSearchPath": 
-    - ${PROGRAM_TOP}/lib/python2.7/dist-packages/hrpsys
+    - @HRPSYS_BASE_PREFIX@/lib/python2.7/dist-packages/hrpsys
 viewAreas: 
   - 
     type: embedded
