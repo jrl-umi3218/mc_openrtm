@@ -164,10 +164,6 @@ bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> &
 {
   if(!m_is_simulation)
   {
-    if(!open_iob())
-    {
-      return failed_iob("open_iob", __func__);
-    }
     size_t num_joints = number_of_joints();
     p_vec.resize(num_joints);
     d_vec.resize(num_joints);
@@ -182,10 +178,6 @@ bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> &
       {
         return failed_iob("read_dgain for joint " + i, __func__);
       };
-    }
-    if(!close_iob())
-    {
-      return failed_iob("close_iob", __func__);
     }
   }
   else
@@ -216,10 +208,6 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
   if(!m_is_simulation)
   {
     // if on real robot
-    if(!open_iob())
-    {
-      return failed_iob("open_iob", __func__);
-    };
     if(!read_pgain(rjo_idx, &p))
     {
       return failed_iob("read_pgain for joint " + rjo_idx, "getServoGainsByName");
@@ -227,10 +215,6 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
     if(!read_dgain(rjo_idx, &d))
     {
       return failed_iob("read_dgain for joint " + rjo_idx, "getServoGainsByName");
-    };
-    if(!close_iob())
-    {
-      return failed_iob("close_iob", __func__);
     };
   }
   else
@@ -263,10 +247,6 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
   if(!m_is_simulation)
   {
     // if on real robot
-    if(!open_iob())
-    {
-      return failed_iob("open_iob", __func__);
-    };
     for(unsigned int i = 0; i < rjo.size(); i++)
     {
       if(!write_pgain(i, p_vec[i]))
@@ -277,12 +257,7 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
       {
         return failed_iob("write_dgain for joint " + i, __func__);
       };
-    }
-    if(!close_iob())
-    {
-      return failed_iob("close_iob", __func__);
     };
-    ;
   }
   else
   {
@@ -321,10 +296,6 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
   if(!m_is_simulation)
   {
     // if on real robot
-    if(!open_iob())
-    {
-      return failed_iob("open_iob", __func__);
-    };
     if(!write_pgain(rjo_idx, p))
     {
       return failed_iob("write_pgain for joint " + rjo_idx, "setServoGainsByName");
@@ -332,10 +303,6 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
     if(!write_dgain(rjo_idx, d))
     {
       return failed_iob("write_dgain for joint " + rjo_idx, "setServoGainsByName");
-    };
-    if(!close_iob())
-    {
-      return failed_iob("close_iob", __func__);
     };
     ;
   }
@@ -421,6 +388,13 @@ RTC::ReturnCode_t MCControl::onInitialize()
   bindParameter("is_enabled", controller.running, "0");
   bindParameter("is_simulation", m_is_simulation, "0");
 
+  // Open IOB
+  if(!open_iob())
+  {
+    failed_iob("open_iob", "MCControl::onInitialize");
+    mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not open IOB.");
+  }
+
   // </rtc-template>
   mc_rtc::log::info("MCControl::onInitialize() finished");
   return RTC::RTC_OK;
@@ -435,6 +409,13 @@ RTC::ReturnCode_t MCControl::onActivated(RTC::UniqueId ec_id)
 
 RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
 {
+  // Close IOB
+  if(!close_iob())
+  {
+    failed_iob("close_iob", "MCControl::onDeactivated");
+    mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
+  }
+
   mc_rtc::log::info("onDeactivated");
   return RTC::RTC_OK;
 }
@@ -637,22 +618,12 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         // confirm mc-rtc timestep is same as IOB timestep
         if(!m_is_simulation)
         {
-          if(!open_iob())
-          {
-            failed_iob("open_iob", "(mc_openrtm constructor)");
-            mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Cannot verify timesteps of IOB and mc-rtc.");
-          }
           double iob_ts = get_signal_period() / 1e9;
           if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
           {
             mc_rtc::log::error_and_throw<std::runtime_error>(
                 "[mc_openrtm] Missmatch between IOB timestep ({}s) and mc_rtc ({}s).", iob_ts,
                 controller.controller().timeStep);
-          }
-          if(!close_iob())
-          {
-            failed_iob("close_iob", "(mc_openrtm constructor)");
-            mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
           }
           mc_rtc::log::info("[mc_openrtm] IOB timestep = {}s and mc_rtc {}s.", iob_ts,
                             controller.controller().timeStep);
