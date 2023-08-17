@@ -389,6 +389,10 @@ RTC::ReturnCode_t MCControl::onInitialize()
       failed_iob("open_iob", "MCControl::onInitialize");
       mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not open IOB.");
     }
+    else
+    {
+      mc_rtc::log::info("[mc_openrtm] Succeeded to open IOB.");
+    }
   }
 
   // </rtc-template>
@@ -412,6 +416,10 @@ RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
     {
       failed_iob("close_iob", "MCControl::onDeactivated");
       mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
+    }
+    else
+    {
+      mc_rtc::log::info("[mc_openrtm] Succeeded to close IOB.");
     }
   }
 
