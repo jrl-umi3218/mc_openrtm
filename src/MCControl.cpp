@@ -182,7 +182,6 @@ bool MCControl::getServoGains(std::vector<double> & p_vec, std::vector<double> &
   }
   else
   {
-    // if in simulation
     m_pgainsInIn.read();
     m_dgainsInIn.read();
     size_t num_joints = m_pgainsIn.data.length();
@@ -207,7 +206,6 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
   int rjo_idx = std::distance(rjo.begin(), rjo_it);
   if(!m_is_simulation)
   {
-    // if on real robot
     if(!read_pgain(rjo_idx, &p))
     {
       return failed_iob("read_pgain for joint " + rjo_idx, "getServoGainsByName");
@@ -219,7 +217,6 @@ bool MCControl::getServoGainsByName(const std::string & jn, double & p, double &
   }
   else
   {
-    // if in simulation
     m_pgainsInIn.read();
     m_dgainsInIn.read();
     p = m_pgainsIn.data[rjo_idx];
@@ -246,7 +243,6 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
 
   if(!m_is_simulation)
   {
-    // if on real robot
     for(unsigned int i = 0; i < rjo.size(); i++)
     {
       if(!write_pgain(i, p_vec[i]))
@@ -261,7 +257,6 @@ bool MCControl::setServoGains(const std::vector<double> & p_vec, const std::vect
   }
   else
   {
-    // if in simulation
     m_pgainsOut.data.length(rjo.size());
     m_dgainsOut.data.length(rjo.size());
     for(unsigned int i = 0; i < rjo.size(); i++)
@@ -295,7 +290,6 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
   int rjo_idx = std::distance(rjo.begin(), rjo_it);
   if(!m_is_simulation)
   {
-    // if on real robot
     if(!write_pgain(rjo_idx, p))
     {
       return failed_iob("write_pgain for joint " + rjo_idx, "setServoGainsByName");
@@ -308,7 +302,6 @@ bool MCControl::setServoGainsByName(const std::string & jn, double p, double d)
   }
   else
   {
-    // if in simulation
     std::vector<double> p_vec;
     std::vector<double> d_vec;
     getServoGains(p_vec, d_vec);
@@ -389,10 +382,13 @@ RTC::ReturnCode_t MCControl::onInitialize()
   bindParameter("is_simulation", m_is_simulation, "0");
 
   // Open IOB
-  if(!open_iob())
+  if(!m_is_simulation)
   {
-    failed_iob("open_iob", "MCControl::onInitialize");
-    mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not open IOB.");
+    if(!open_iob())
+    {
+      failed_iob("open_iob", "MCControl::onInitialize");
+      mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not open IOB.");
+    }
   }
 
   // </rtc-template>
@@ -410,10 +406,13 @@ RTC::ReturnCode_t MCControl::onActivated(RTC::UniqueId ec_id)
 RTC::ReturnCode_t MCControl::onDeactivated(RTC::UniqueId ec_id)
 {
   // Close IOB
-  if(!close_iob())
+  if(!m_is_simulation)
   {
-    failed_iob("close_iob", "MCControl::onDeactivated");
-    mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
+    if(!close_iob())
+    {
+      failed_iob("close_iob", "MCControl::onDeactivated");
+      mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not close IOB.");
+    }
   }
 
   mc_rtc::log::info("onDeactivated");
