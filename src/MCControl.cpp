@@ -381,20 +381,6 @@ RTC::ReturnCode_t MCControl::onInitialize()
   bindParameter("is_enabled", controller.running, "0");
   bindParameter("is_simulation", m_is_simulation, "0");
 
-  // Open IOB
-  if(!m_is_simulation)
-  {
-    if(!open_iob())
-    {
-      failed_iob("open_iob", "MCControl::onInitialize");
-      mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not open IOB.");
-    }
-    else
-    {
-      mc_rtc::log::info("[mc_openrtm] Succeeded to open IOB.");
-    }
-  }
-
   // </rtc-template>
   mc_rtc::log::info("MCControl::onInitialize() finished");
   return RTC::RTC_OK;
@@ -625,6 +611,17 @@ RTC::ReturnCode_t MCControl::onExecute(RTC::UniqueId ec_id)
         // confirm mc-rtc timestep is same as IOB timestep
         if(!m_is_simulation)
         {
+          // Open IOB
+          if(!open_iob())
+          {
+            failed_iob("open_iob", "MCControl::onInitialize");
+            mc_rtc::log::error_and_throw<std::runtime_error>("[mc_openrtm] Could not open IOB.");
+          }
+          else
+          {
+            mc_rtc::log::info("[mc_openrtm] Succeeded to open IOB.");
+          }
+
           double iob_ts = get_signal_period() / 1e9;
           if(fabs(iob_ts - controller.controller().timeStep) > 1e-6)
           {
